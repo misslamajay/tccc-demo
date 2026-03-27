@@ -1,0 +1,4598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流程画布编辑器 - 云联络中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white-1: #FFFFFF;
+            --black-1: #000000;
+            --gray-light-1: #F9FAFC;
+            --gray-light-2: #F2F4F8;
+            --gray-light-3: #E6E9F0;
+            --gray-light-4: #D1D4DE;
+            --gray-dark-1: #131417;
+            --theme-light-1: #EBF3FF;
+            --theme-light-6: #1C66E5;
+            --text-primary: rgba(0, 0, 0, 0.90);
+            --text-secondary: rgba(0, 0, 0, 0.70);
+            --text-tertiary: rgba(0, 0, 0, 0.50);
+            --border-primary: #E6E9EF;
+            --border-secondary: #E9ECF1;
+            --border-tertiary: #D6DBE3;
+            --bg-page: #F2F4F8;
+        }
+
+        body {
+            font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-page);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 52px;
+            background: #2E60C4;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding-right: 20px;
+        }
+
+        .logo-section img {
+            height: 24px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.90);
+        }
+
+        .nav-divider {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 0 0;
+        }
+
+        .nav-divider img {
+            height: 16px;
+        }
+
+        .nav-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .nav-selector img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-selector span {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.90);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ai-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            background: linear-gradient(90deg, rgba(20, 204, 225, 0.30) 0%, rgba(153, 226, 34, 0.30) 100%);
+            border-radius: 49px;
+            border: none;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .ai-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 49px;
+            padding: 1px;
+            background: linear-gradient(90deg, rgba(7, 187, 207, 1) 0%, rgba(121, 197, 0, 1) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .ai-btn img {
+            width: 22px;
+            height: 22px;
+        }
+
+        .ai-btn span {
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-info img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .user-info span {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.90);
+        }
+
+        /* 主内容区域 */
+        .main-container {
+            display: flex;
+            margin-top: 52px;
+            height: calc(100vh - 52px);
+        }
+
+        /* 左侧导航栏 */
+        .left-sidebar {
+            width: 48px;
+            background: var(--white-1);
+            border-right: 1px solid var(--border-secondary);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 52px;
+            left: 0;
+            height: calc(100vh - 52px);
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            width: 48px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-secondary);
+        }
+
+        .sidebar-logo img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .sidebar-menu {
+            padding: 16px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .sidebar-item {
+            width: 48px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sidebar-item.active {
+            background: transparent;
+        }
+
+        .sidebar-item.active::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background: #F2F6FF;
+            border-radius: 8px;
+        }
+
+        .sidebar-item img {
+            width: 16px;
+            height: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-divider {
+            width: 48px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-divider img {
+            width: 48px;
+            height: 40px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 0 0 16px 0;
+        }
+        
+        .sidebar-bottom .sidebar-item {
+            height: 48px;
+        }
+
+        /* 中间内容区域 */
+        .content-area {
+            flex: 1;
+            margin-left: 48px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部工具栏 */
+        .toolbar {
+            height: 60px;
+            background: var(--white-1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-secondary);
+            position: relative;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* 工具栏禁用状态 - 任务执行时 */
+        .toolbar.disabled {
+            pointer-events: none;
+        }
+        
+        .toolbar.disabled .toolbar-settings,
+        .toolbar.disabled .toolbar-right {
+            opacity: 0.4;
+        }
+        
+        .toolbar.disabled .back-btn,
+        .toolbar.disabled .edit-icon {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            height: 40px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-light-1);
+        }
+
+        .back-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .flow-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-left: 12px;
+        }
+
+        .edit-icon {
+            cursor: pointer;
+            margin-left: 8px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .toolbar-settings {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 16px;
+        }
+
+        .setting-btn {
+            height: 28px;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--white-1);
+            border: 1px solid #E6E9F0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #131417;
+        }
+
+        .setting-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .setting-btn .arrow-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .setting-btn-divider {
+            width: 1px;
+            height: 11px;
+            background: #E6E9F0;
+            margin: 0 4px;
+        }
+
+        .setting-btn .mode-icon {
+            width: 18px;
+            height: 18px;
+            background: #1C66E5;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .setting-btn .mode-icon img {
+            width: 12px;
+            height: 12px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .test-btn {
+            width: 88px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--white-1);
+            border: 1px solid var(--theme-light-6);
+            border-radius: 999px;
+            color: var(--theme-light-6);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .test-btn:hover {
+            background: var(--theme-light-1);
+        }
+
+        .save-btn {
+            width: 88px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--theme-light-6);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .save-btn:hover {
+            background: #1557c7;
+        }
+
+        /* 画布区域 */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            background: var(--bg-page);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 画布锁定遮罩层 - 任务执行时禁止操作 */
+        .canvas-lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 100;
+            cursor: not-allowed;
+            display: none;
+        }
+        
+        .canvas-lock-overlay.active {
+            display: block;
+        }
+        
+        /* AI工作提示条 */
+        .ai-working-toast {
+            position: fixed;
+            top: 130px;
+            /* 在画布区域居中：左侧导航60px，右侧面板400px */
+            left: calc(60px + (100% - 60px - 400px) / 2);
+            transform: translateX(-50%) translateY(-20px);
+            background: white;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.06), 0px 4px 12px rgba(0, 0, 0, 0.06), 0px 1px 8px rgba(0, 0, 0, 0.06);
+            border-radius: 100px;
+            padding: 13px 16px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .ai-working-toast.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .ai-working-toast .toast-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            animation: iconThinking 2s ease-in-out infinite;
+        }
+        
+        .ai-working-toast .toast-text {
+            font-size: 14px;
+            font-family: 'PingFang SC', sans-serif;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.90);
+            white-space: nowrap;
+        }
+        
+        /* IP图标思考动画 - 轻微摇摆 + 缩放 */
+        @keyframes iconThinking {
+            0%, 100% {
+                transform: rotate(0deg) scale(1);
+            }
+            25% {
+                transform: rotate(-12deg) scale(1.1);
+            }
+            50% {
+                transform: rotate(0deg) scale(1);
+            }
+            75% {
+                transform: rotate(12deg) scale(1.1);
+            }
+        }
+        
+        /* IP图标脉冲光晕效果 */
+        .ai-working-toast .toast-icon-wrapper {
+            position: relative;
+            width: 32px;
+            height: 32px;
+        }
+        
+        .ai-working-toast .toast-icon-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(20, 204, 225, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: iconGlow 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes iconGlow {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* 无限画布视口 */
+        .canvas-viewport {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .canvas-viewport:active {
+            cursor: grabbing;
+        }
+
+        .canvas-viewport.dragging {
+            cursor: grabbing;
+        }
+
+        /* 左侧工具面板 */
+        .tools-panel {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 40px;
+            background: #FAFBFC;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            padding: 6px;
+            gap: 0;
+        }
+
+        .tool-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .tool-btn:hover {
+            background: var(--gray-light-3);
+        }
+
+        .tool-btn img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .tool-divider {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-divider img {
+            width: 16px;
+            height: 1px;
+        }
+
+        /* 流程画布 - 无限画布内容层 */
+        .flow-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            min-width: 5000px;
+            min-height: 3000px;
+            padding: 40px 80px 40px 80px;
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+
+        .flow-nodes {
+            display: flex;
+            align-items: flex-start;
+            gap: 80px;
+            min-width: max-content;
+        }
+
+        /* 流程节点 */
+        .flow-node {
+            background: var(--white-1);
+            border-radius: 12px;
+            border: 1px solid var(--border-tertiary);
+            min-width: 260px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .flow-node.welcome-node {
+            width: 260px;
+        }
+
+        .flow-node.tag-node {
+            width: 260px;
+        }
+
+        .flow-node.dialog-node {
+            width: 260px;
+        }
+
+        .flow-node.small {
+            min-width: 104px;
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            height: 48px;
+        }
+
+        .node-header > img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .node-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .node-icon.green {
+            background: rgba(18, 178, 130, 0.10);
+        }
+
+        .node-icon.blue {
+            background: rgba(28, 102, 229, 0.10);
+        }
+
+        .node-icon.orange {
+            background: rgba(255, 152, 0, 0.10);
+        }
+
+        .node-icon.purple {
+            background: rgba(156, 39, 176, 0.10);
+        }
+
+        .node-icon.gray {
+            background: var(--gray-light-2);
+        }
+
+        .node-icon img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .node-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #0F1014;
+        }
+
+        .node-content {
+            padding: 0 12px 12px;
+        }
+
+        .content-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #0F1014;
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+
+        .content-label:first-child {
+            margin-top: 0;
+        }
+
+        .content-box {
+            background: #F9FAFC;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #0F1014;
+            line-height: 1.5;
+        }
+
+        .reply-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .reply-list .content-box {
+            min-height: 41px;
+            display: flex;
+            align-items: center;
+            padding: 12px;
+        }
+
+        /* 连接线 */
+        .connector {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .connector-line {
+            width: 80px;
+            height: 2px;
+            background: var(--gray-light-4);
+            position: relative;
+        }
+
+        .connector-arrow {
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .connector-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--theme-light-6);
+            position: absolute;
+        }
+
+        /* 右侧AI助手面板 */
+        .ai-panel {
+            width: 477px;
+            background: var(--white-1);
+            border-left: 1px solid var(--border-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+        }
+
+        .ai-panel-header {
+            height: 84px;
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .close-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--white-1);
+            border-radius: 100px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: var(--gray-light-1);
+        }
+
+        .ai-panel-content {
+            flex: 1;
+            padding: 0 32px;
+            overflow-y: auto;
+        }
+
+        .ai-greeting {
+            margin-bottom: 32px;
+        }
+
+        .ai-greeting img {
+            margin-bottom: 16px;
+        }
+
+        .greeting-text h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--black-1);
+            margin-bottom: 0;
+        }
+
+        .greeting-text h2 + h2 {
+            margin-top: 0;
+        }
+
+        .ai-help-section {
+            margin-top: 32px;
+        }
+
+        .ai-help-title {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+        }
+
+        .help-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .help-card {
+            background: var(--gray-light-1);
+            border-radius: 16px 16px 16px 0;
+            padding: 16px;
+            border: 0.5px solid #E7F1FB;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .help-card:nth-child(2) {
+            border-color: #E6F3F5;
+            border-radius: 16px 16px 0 16px;
+            margin-top: 24px;
+        }
+
+        .help-card:nth-child(3) {
+            border-color: #EFEFF7;
+            border-radius: 16px 16px 16px 0;
+        }
+
+        .help-card:nth-child(4) {
+            border-color: #E7F1FB;
+            border-radius: 16px 16px 0 16px;
+        }
+
+        .help-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .help-card img {
+            margin-bottom: 8px;
+        }
+
+        .help-card-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .help-card-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* AI输入区域 */
+        .ai-input-area {
+            padding: 0 24px 24px;
+        }
+
+        /* 多场景确认窗口 */
+        .multi-scene-confirm {
+            display: none;
+            background: #FCF6ED;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 16px 24px 20px;
+            margin-bottom: -12px;
+        }
+
+        .multi-scene-confirm.show {
+            display: block;
+        }
+
+        .multi-scene-confirm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .multi-scene-confirm-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #D07200;
+        }
+
+        .multi-scene-confirm-timer {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.9);
+        }
+
+        .multi-scene-confirm-subtitle {
+            font-size: 17px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.9);
+            margin-bottom: 8px;
+        }
+
+        .multi-scene-confirm-desc {
+            font-size: 15px;
+            color: rgba(0, 0, 0, 0.9);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .multi-scene-confirm-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .multi-scene-option {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 20px;
+            background: white;
+            border-radius: 100px;
+            box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: fit-content;
+        }
+
+        .multi-scene-option span {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.9);
+        }
+
+        .multi-scene-option:hover {
+            background: #f5f5f5;
+        }
+
+        .multi-scene-option.selected {
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        .multi-scene-option.selected span {
+            color: white;
+        }
+
+        .ai-input-box {
+            transition: all 0.2s ease;
+        }
+
+        /* 修改画布场景思考区域样式 */
+        .modify-canvas-thinking {
+            margin-top: 16px;
+        }
+
+        .thinking-header-simple {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .thinking-hint {
+            font-size: 12px;
+            font-family: 'PingFang SC', sans-serif;
+            color: rgba(0, 0, 0, 0.50);
+        }
+
+        .thinking-collapse-icon {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .thinking-collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .thinking-content-wrapper {
+            display: flex;
+            margin-top: 16px;
+            padding-left: 8px;
+            overflow: hidden;
+            max-height: 500px;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .thinking-content-wrapper.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+        }
+
+        .thinking-timeline {
+            width: 1px;
+            background: #D6DBE3;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .thinking-detail {
+            flex: 1;
+        }
+
+        .thinking-agent-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .thinking-agent-header .agent-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .thinking-agent-header .agent-name {
+            font-size: 12px;
+            font-family: 'PingFang SC', sans-serif;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.80);
+        }
+
+        .thinking-agent-header .thinking-time {
+            font-size: 12px;
+            font-family: 'PingFang SC', sans-serif;
+            color: rgba(0, 0, 0, 0.50);
+        }
+
+        .thinking-agent-content {
+            font-size: 12px;
+            font-family: 'PingFang SC', sans-serif;
+            color: rgba(0, 0, 0, 0.50);
+            line-height: 20px;
+            text-align: justify;
+        }
+
+        /* 修改画布任务卡片样式 */
+        .modify-task-card {
+            margin-top: 16px;
+            border-radius: 16px;
+            border: 1px solid #E9ECF1;
+            overflow: hidden;
+        }
+
+        .modify-task-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 16px;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .modify-task-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modify-task-card-header-left img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .modify-task-card-title {
+            font-size: 14px;
+            font-family: 'PingFang SC', sans-serif;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.90);
+        }
+
+        .modify-task-card-progress {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .modify-task-card-progress span {
+            font-size: 13px;
+            font-family: 'PingFang SC', sans-serif;
+            color: rgba(0, 0, 0, 0.50);
+        }
+
+        .modify-task-card-progress img {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .modify-task-card.collapsed .modify-task-card-progress img {
+            transform: rotate(-90deg);
+        }
+
+        .modify-task-list {
+            padding: 12px 16px;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modify-task-card.collapsed .modify-task-list {
+            max-height: 0;
+            padding: 0 16px;
+        }
+
+        .modify-task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 0;
+        }
+
+        .modify-task-item img {
+            width: 16px;
+            height: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .modify-task-item-content {
+            flex: 1;
+        }
+
+        .modify-task-item-title {
+            font-size: 14px;
+            font-family: 'PingFang SC', sans-serif;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.90);
+            line-height: 20px;
+        }
+
+        .modify-task-item-title.active {
+            font-weight: 500;
+            color: #000;
+        }
+
+        .modify-task-item-title.disabled {
+            color: rgba(0, 0, 0, 0.30);
+        }
+
+        .modify-task-item-hint {
+            font-size: 12px;
+            font-family: 'PingFang SC', sans-serif;
+            color: rgba(0, 0, 0, 0.50);
+            line-height: 20px;
+            margin-top: 2px;
+        }
+
+        .ai-input-box {
+            background: var(--white-1);
+            border-radius: 24px;
+            border: 0.5px solid #BCC4D0;
+            box-shadow: 0px 8px 24px -8px rgba(0, 0, 0, 0.05), 0px 4px 8px rgba(0, 0, 0, 0.03);
+            padding: 12px 16px;
+        }
+
+        .ai-input-textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: rgba(0, 0, 0, 0.90);
+            background: transparent;
+            padding: 0;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            min-height: 21px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .ai-input-textarea::placeholder {
+            color: rgba(0, 0, 0, 0.30);
+        }
+
+        .ai-input-placeholder {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.30);
+            padding: 0 0 12px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.40) 25%, rgba(0, 0, 0, 0.20) 50%, rgba(0, 0, 0, 0.40) 75%, rgba(0, 0, 0, 0.20) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .ai-input-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .upload-btn:hover {
+            background: var(--gray-light-1);
+        }
+
+        .upload-btn img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .send-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* 输入框执行中状态 */
+        .ai-input-box.executing {
+            pointer-events: none;
+        }
+        
+        .ai-input-box.executing .ai-input-textarea {
+            pointer-events: none;
+            color: rgba(0, 0, 0, 0.30);
+        }
+        
+        .ai-input-box.executing .ai-input-placeholder {
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.40) 25%, rgba(0, 0, 0, 0.20) 50%, rgba(0, 0, 0, 0.40) 75%, rgba(0, 0, 0, 0.20) 100%);
+            background-size: 100% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textGradientFlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes textGradientFlow {
+            0%, 100% {
+                background-position: 0% 0%;
+            }
+            50% {
+                background-position: 0% 100%;
+            }
+        }
+        
+        .ai-input-box.executing .upload-btn {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .ai-input-box.executing .send-btn {
+            pointer-events: auto;
+            cursor: pointer;
+            opacity: 1;
+        }
+        
+        .ai-input-box.executing .send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .ai-input-box.executing .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 流程分支布局 */
+        .flow-branch {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .branch-row {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        /* 节点连接点 */
+        .node-connector-out {
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--theme-light-6);
+            border-radius: 50%;
+        }
+
+        .node-connector-in {
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border: 2px solid var(--theme-light-6);
+            border-radius: 50%;
+            background: var(--white-1);
+        }
+
+        /* 结束节点底部连接点 */
+        .node-end-connector {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 画布缩放控制 */
+        .canvas-with-panel {
+            margin-right: 477px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1400px) {
+            .ai-panel {
+                width: 400px;
+            }
+            .canvas-with-panel {
+                margin-right: 400px;
+            }
+        }
+
+        /* 回复选项连接点 */
+        .reply-option {
+            position: relative;
+        }
+
+        /* 可拖拽节点样式 */
+        .draggable {
+            cursor: move;
+            user-select: none;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .draggable.dragging {
+            opacity: 0.8;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* AI对话界面样式 */
+        .ai-chat-view {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            padding: 0 20px;
+            overflow-y: auto;
+        }
+
+        .ai-chat-view.active {
+            display: flex;
+        }
+
+        .ai-panel-content.hidden {
+            display: none;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding-top: 12px;
+        }
+
+        /* 用户消息气泡 */
+        .chat-message {
+            margin-bottom: 24px;
+        }
+
+        .chat-message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .user-bubble {
+            max-width: 276px;
+            background: #E9ECF1;
+            border-radius: 6px 6px 0 6px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.90);
+            line-height: 1.5;
+        }
+
+        /* AI思考状态 */
+        .ai-thinking {
+            margin-bottom: 24px;
+        }
+
+        .thinking-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .thinking-header span {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.50);
+        }
+
+        .thinking-header .expand-icon {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s;
+        }
+
+        .thinking-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        .thinking-header.collapsed .expand-icon {
+            transform: rotate(0deg);
+        }
+
+        .thinking-content {
+            display: block;
+            margin-left: 8px;
+            padding-left: 16px;
+            border-left: 1px solid #D6DBE3;
+        }
+
+        .thinking-content.collapsed {
+            display: none;
+        }
+        
+        /* 流式输出打字效果 */
+        .typing-text {
+            display: inline;
+        }
+        
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.50);
+            margin-left: 2px;
+            animation: cursorBlink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* 任务执行卡片样式 */
+        .task-card {
+            border-radius: 16px;
+            border: 1px solid #E9ECF1;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+        
+        .task-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 16px;
+            background: rgba(0, 0, 0, 0.02);
+        }
+        
+        .task-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .task-card-header-left img {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .task-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.90);
+        }
+        
+        .task-card-progress {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .task-card-progress span {
+            font-size: 13px;
+            color: rgba(0, 0, 0, 0.50);
+        }
+        
+        .task-card-progress img {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .task-card-body {
+            padding: 12px 16px;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 0;
+        }
+        
+        .task-item img {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .task-item-content {
+            flex: 1;
+        }
+        
+        .task-item-text {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.90);
+            text-align: justify;
+        }
+        
+        .task-item.completed .task-item-text {
+            color: rgba(0, 0, 0, 0.90);
+        }
+        
+        .task-item.stopped .task-item-text {
+            color: rgba(0, 0, 0, 0.60);
+        }
+        
+        .task-item.stopped .task-status {
+            color: #F5A623;
+        }
+        
+        /* 任务终止状态 - 红色 */
+        .task-item.terminated .task-item-text {
+            color: #E54545;
+            font-weight: 500;
+        }
+        
+        .task-item.terminated .task-item-status {
+            display: none !important;
+        }
+        
+        /* 任务禁用状态 - 灰色 */
+        .task-item.disabled .task-item-text {
+            color: rgba(0, 0, 0, 0.30);
+        }
+        
+        .task-item.disabled .task-item-status {
+            display: none !important;
+        }
+        
+        .task-item.in-progress .task-item-text {
+            color: #000;
+            font-weight: 500;
+        }
+        
+        .task-item.pending .task-item-text {
+            color: rgba(0, 0, 0, 0.30);
+        }
+        
+        .task-item-status {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.50);
+            margin-top: 2px;
+        }
+        
+        /* 任务列表收起/展开 */
+        .task-card-body {
+            transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .task-card-body.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+        }
+        
+        .task-card-header {
+            cursor: pointer;
+        }
+        
+        .task-card-progress img {
+            transition: transform 0.3s ease;
+        }
+        
+        .task-card.collapsed .task-card-progress img {
+            transform: rotate(-90deg);
+        }
+        
+        /* 任务完成结论区域 - 在卡片外部 */
+        .task-conclusion {
+            margin-top: 16px;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.90);
+            line-height: 22px;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .task-conclusion-text {
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.90);
+        }
+        
+        /* 版本条样式 */
+        .version-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            height: 20px;
+            background: #E9ECF1;
+            border-radius: 2px;
+            margin-bottom: 16px;
+        }
+        
+        .version-bar:last-of-type {
+            margin-bottom: 0;
+        }
+        
+        .version-number {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.50);
+        }
+        
+        .version-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .version-current-label {
+            font-size: 12px;
+            font-weight: 400;
+            color: #0ABF77;
+        }
+        
+        .version-action {
+            font-size: 12px;
+            font-weight: 400;
+            color: #1C66E5;
+            cursor: pointer;
+        }
+        
+        .version-action:hover {
+            text-decoration: underline;
+        }
+        
+        .version-action.current {
+            color: rgba(0, 0, 0, 0.50);
+            cursor: default;
+        }
+        
+        .version-action.current:hover {
+            text-decoration: none;
+        }
+        
+        /* 回复操作按钮组 */
+        .reply-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            margin-left: -4px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .reply-action-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative;
+            z-index: 11;
+        }
+        
+        .reply-action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .reply-action-btn img {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .reply-action-btn.active {
+            background-color: rgba(28, 102, 229, 0.1);
+        }
+        
+        .reply-action-btn.active img {
+            filter: brightness(0) saturate(100%) invert(35%) sepia(98%) saturate(1234%) hue-rotate(206deg) brightness(93%) contrast(92%);
+        }
+        
+        /* 点踩按钮激活状态 - 红色 */
+        .reply-action-btn[title="点踩"].active {
+            background-color: rgba(229, 69, 69, 0.1);
+        }
+        
+        .reply-action-btn[title="点踩"].active img {
+            filter: brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(331deg) brightness(91%) contrast(101%);
+        }
+        
+        /* 退出确认弹窗样式 */
+        .exit-confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .exit-confirm-modal.active {
+            display: flex;
+        }
+        
+        .exit-confirm-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 25px 0 25px;
+        }
+        
+        .exit-confirm-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000000;
+        }
+        
+        .exit-confirm-body {
+            padding: 32px 25px;
+        }
+        
+        .exit-confirm-body p {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.80);
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .exit-confirm-btn {
+            width: 88px;
+            height: 32px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-family: 'PingFang SC', sans-serif;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: opacity 0.2s;
+            position: relative;
+            z-index: 10001;
+            pointer-events: auto;
+        }
+        
+        .exit-confirm-btn:hover {
+            opacity: 0.85;
+        }
+        
+        .exit-confirm-btn:active {
+            opacity: 0.7;
+        }
+        
+        .exit-confirm-btn.primary {
+            background: #1C66E5;
+            color: white;
+        }
+        
+        .exit-confirm-btn.secondary {
+            background: white;
+            color: #131417;
+            border: 1px solid #D1D4DE;
+        }
+        
+        .exit-confirm-dialog {
+            width: 514px;
+            background: white;
+            border-radius: 12px;
+            overflow: visible;
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.16);
+            position: relative;
+            z-index: 10001;
+            pointer-events: auto;
+        }
+        
+        .exit-confirm-footer {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 0 25px 25px 25px;
+            position: relative;
+            z-index: 10002;
+        }
+        
+        .exit-confirm-close {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10002;
+            pointer-events: auto;
+        }
+        
+        .exit-confirm-close img {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .exit-confirm-close:hover {
+            opacity: 0.7;
+        }
+        
+        /* 完成状态头部 */
+        .thinking-complete {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .thinking-complete span {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.50);
+        }
+        
+        .thinking-complete img {
+            width: 14px;
+            height: 14px;
+        }
+        
+        /* 节点高亮效果 - 正在被AI润色（仅轻微提升层级） */
+        .flow-node.ai-processing {
+            z-index: 10;
+        }
+        
+        /* 话术内容高亮状态 - 渐变边框效果 */
+        .content-box.ai-highlight {
+            background: linear-gradient(90deg, rgba(20, 204, 225, 0.07) 0%, rgba(153, 226, 34, 0.07) 100%) !important;
+            position: relative;
+            border: none !important;
+            padding: 12px;
+        }
+        
+        .content-box.ai-highlight::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            padding: 1px;
+            background: linear-gradient(90deg, rgba(7, 187, 207, 1) 0%, rgba(121, 197, 0, 1) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            animation: borderGradientFlow 2s linear infinite;
+            background-size: 200% 100%;
+        }
+        
+        /* 描边渐变过渡动画 */
+        @keyframes borderGradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* AI图标角标 */
+        .content-box.ai-highlight .ai-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+        }
+        
+        /* 高亮时文字需要下移，给图标留空间 */
+        .content-box.ai-highlight .highlight-text {
+            display: block;
+            margin-top: 24px;
+        }
+        
+        /* 星星闪烁容器 */
+        .content-box.ai-highlight .sparkle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        /* 星星闪烁效果 */
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            opacity: 0;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        
+        .sparkle::before,
+        .sparkle::after {
+            content: '';
+            position: absolute;
+            background: linear-gradient(90deg, #14CCE1, #99E222);
+            border-radius: 1px;
+        }
+        
+        .sparkle::before {
+            width: 100%;
+            height: 2px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        
+        .sparkle::after {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+        
+        .sparkle:nth-child(1) {
+            top: 10%;
+            right: 15%;
+            animation-delay: 0s;
+        }
+        
+        .sparkle:nth-child(2) {
+            top: 30%;
+            right: 8%;
+            animation-delay: 0.4s;
+        }
+        
+        .sparkle:nth-child(3) {
+            bottom: 20%;
+            right: 20%;
+            animation-delay: 0.8s;
+        }
+        
+        .sparkle:nth-child(4) {
+            top: 50%;
+            right: 25%;
+            animation-delay: 1.2s;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.5) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1) rotate(180deg);
+            }
+        }
+        
+        /* 话术更新动画 */
+        .content-box.text-updating {
+            animation: textFadeIn 0.4s ease-out;
+        }
+        
+        @keyframes textFadeIn {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        /* 润色完成状态 - 带完成图标 */
+        .content-box.ai-completed {
+            position: relative;
+        }
+        
+        .content-box.ai-completed .completed-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #14CCE1 0%, #79C500 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(20, 204, 225, 0.3);
+            animation: completedBadgeIn 0.3s ease-out;
+            z-index: 3;
+        }
+        
+        .content-box.ai-completed .completed-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+        
+        @keyframes completedBadgeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes completedBadgeOut {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+
+        .thinking-item {
+            margin-bottom: 16px;
+        }
+
+        .thinking-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .thinking-item-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .thinking-item-header .agent-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .thinking-item-header .agent-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.80);
+        }
+
+        .thinking-item-header .agent-time {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.50);
+        }
+
+        .thinking-item-content {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.50);
+            line-height: 1.67;
+        }
+
+        /* 加载动画 */
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 4px;
+        }
+
+        .loading-dots span {
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.50);
+            border-radius: 50%;
+            animation: dotPulse 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% {
+                transform: scale(0.6);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- AI工作提示条 -->
+    <div class="ai-working-toast" id="aiWorkingToast">
+        <div class="toast-icon-wrapper">
+            <img src="assets/CodeBuddyAssets/8734_461338/1.svg" class="toast-icon" alt="AI">
+        </div>
+        <span class="toast-text">智能体工程专家正在工作，请勿离开此页面</span>
+    </div>
+    
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo-section">
+                <img src="assets/CodeBuddyAssets/8787_463747/1.svg" alt="logo">
+                <span class="logo-text">云联络中心</span>
+            </div>
+            <div class="nav-divider">
+                <img src="assets/CodeBuddyAssets/8787_463747/2.svg" alt="divider">
+            </div>
+            <div class="nav-selector">
+                <img src="assets/CodeBuddyAssets/8787_463747/3.svg" alt="icon">
+                <span>管理端</span>
+                <img src="assets/CodeBuddyAssets/8787_463747/4.svg" alt="arrow">
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="ai-btn">
+                <img src="assets/CodeBuddyAssets/8787_463747/5.svg" alt="AI">
+                <span>AI助手</span>
+            </div>
+            <div class="user-info">
+                <img src="assets/CodeBuddyAssets/8787_463747/6.svg" alt="user">
+                <span>summerzheng@t...</span>
+                <img src="assets/CodeBuddyAssets/8787_463747/7.svg" alt="arrow">
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <div class="main-container">
+        <!-- 左侧导航栏 -->
+        <aside class="left-sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/CodeBuddyAssets/8734_459137/1.svg" alt="logo">
+            </div>
+            <div class="sidebar-menu">
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/2.svg" alt="menu">
+                </div>
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/3.svg" alt="menu">
+                </div>
+                <div class="sidebar-divider">
+                    <img src="assets/CodeBuddyAssets/8734_459137/4.svg" alt="divider">
+                </div>
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/5.svg" alt="menu">
+                </div>
+                <div class="sidebar-item active">
+                    <img src="assets/CodeBuddyAssets/8734_459137/6.svg" alt="menu">
+                </div>
+                <div class="sidebar-divider">
+                    <img src="assets/CodeBuddyAssets/8734_459137/7.svg" alt="divider">
+                </div>
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/8.svg" alt="menu">
+                </div>
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/9.svg" alt="menu">
+                </div>
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/10.svg" alt="menu">
+                </div>
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/11.svg" alt="menu">
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="sidebar-item">
+                    <img src="assets/CodeBuddyAssets/8734_459137/12.svg" alt="settings">
+                </div>
+            </div>
+        </aside>
+
+        <!-- 内容区域 -->
+        <div class="content-area canvas-with-panel">
+            <!-- 顶部工具栏 -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <a href="agent-builder.html" class="back-btn">
+                        <img src="assets/CodeBuddyAssets/8734_459139/2.svg" alt="back">
+                    </a>
+                    <span class="flow-title">试驾预约流程</span>
+                    <img src="assets/CodeBuddyAssets/8734_459139/3.svg" alt="edit" class="edit-icon">
+                    <div class="toolbar-settings">
+                        <div class="setting-btn">
+                            <img src="assets/CodeBuddyAssets/8734_459139/4.svg" alt="lang">
+                            <span>中文</span>
+                            <img src="assets/CodeBuddyAssets/8734_459139/5.svg" alt="arrow" class="arrow-icon">
+                        </div>
+                        <div class="setting-btn">
+                            <img src="assets/CodeBuddyAssets/8734_459139/6.svg" alt="voice">
+                            <span>智美</span>
+                            <div class="setting-btn-divider"></div>
+                            <img src="assets/CodeBuddyAssets/8734_459139/7.svg" alt="settings" class="arrow-icon">
+                        </div>
+                        <div class="setting-btn">
+                            <div class="mode-icon">
+                                <img src="assets/CodeBuddyAssets/8734_459139/8.svg" alt="mode">
+                            </div>
+                            <span>顺序模式</span>
+                            <img src="assets/CodeBuddyAssets/8734_459139/9.svg" alt="arrow" class="arrow-icon">
+                        </div>
+                    </div>
+                </div>
+                <div class="toolbar-right">
+                    <button class="test-btn">测试</button>
+                    <button class="save-btn">保存</button>
+                </div>
+            </div>
+
+            <!-- 画布容器 -->
+            <div class="canvas-container">
+                <!-- 画布锁定遮罩层 -->
+                <div class="canvas-lock-overlay" id="canvasLockOverlay"></div>
+                <!-- 左侧工具面板 -->
+                <div class="tools-panel">
+                    <div class="tool-btn">
+                        <img src="assets/CodeBuddyAssets/8734_459183/1.svg" alt="add">
+                    </div>
+                    <div class="tool-btn">
+                        <img src="assets/CodeBuddyAssets/8734_459183/2.svg" alt="grid">
+                    </div>
+                    <div class="tool-divider">
+                        <img src="assets/CodeBuddyAssets/8734_459183/3.svg" alt="divider">
+                    </div>
+                    <div class="tool-btn">
+                        <img src="assets/CodeBuddyAssets/8734_459183/4.svg" alt="zoom-out">
+                    </div>
+                    <div class="tool-btn">
+                        <img src="assets/CodeBuddyAssets/8734_459183/5.svg" alt="zoom-in">
+                    </div>
+                </div>
+
+                <!-- 无限画布视口 -->
+                <div class="canvas-viewport" id="canvasViewport">
+                    <!-- 流程画布 -->
+                    <div class="flow-canvas" id="flowCanvas">
+                    <!-- 连接线SVG - z-index设置高于卡片，让线条显示在上方 -->
+                    <svg id="connectionsSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;">
+                        <!-- 连接线将由JavaScript动态生成 -->
+                    </svg>
+
+                    <!-- 开始通话节点 -->
+                    <div class="flow-node small draggable" id="node-start" style="position: absolute; left: 100px; top: 200px;">
+                        <div class="node-header">
+                            <div class="node-icon green">
+                                <img src="assets/CodeBuddyAssets/8734_459055/45.svg" alt="start">
+                            </div>
+                            <span class="node-title">开始通话</span>
+                        </div>
+                    </div>
+
+                    <!-- 欢迎语节点 -->
+                    <div class="flow-node welcome-node draggable" id="node-welcome" style="position: absolute; left: 280px; top: 100px;">
+                        <div class="node-header">
+                            <img src="assets/CodeBuddyAssets/8734_459248/1.svg" alt="icon">
+                            <span class="node-title">欢迎语</span>
+                        </div>
+                        <div class="node-content">
+                            <div class="content-label">话术</div>
+                            <div class="content-box">您好，这里是XX客服中心，您预约了4月14日上午10点整来大明宫总店，请问时间需要调整吗？</div>
+                            <div class="content-label">用户回复分类</div>
+                            <div class="reply-list">
+                                <div class="content-box reply-option" data-branch="satisfied">满意</div>
+                                <div class="content-box reply-option" data-branch="unsatisfied">不满意</div>
+                                <div class="content-box reply-option" data-branch="other">其他分类</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 满意分支 - 试驾是否满意 -->
+                    <div class="flow-node tag-node draggable" id="node-satisfied" style="position: absolute; left: 620px; top: 40px;">
+                        <div class="node-header">
+                            <div class="node-icon blue">
+                                <img src="assets/CodeBuddyAssets/8734_459186/1.svg" alt="icon">
+                            </div>
+                            <span class="node-title">试驾是否满意</span>
+                        </div>
+                        <div class="node-content">
+                            <div class="content-label">话后标签</div>
+                            <div class="content-box">试驾是否满意-满意</div>
+                        </div>
+                    </div>
+
+                    <!-- 不满意分支 - 试驾是否满意 -->
+                    <div class="flow-node tag-node draggable" id="node-unsatisfied" style="position: absolute; left: 620px; top: 220px;">
+                        <div class="node-header">
+                            <div class="node-icon blue">
+                                <img src="assets/CodeBuddyAssets/8734_459186/1.svg" alt="icon">
+                            </div>
+                            <span class="node-title">试驾是否满意</span>
+                        </div>
+                        <div class="node-content">
+                            <div class="content-label">话后标签</div>
+                            <div class="content-box">试驾是否满意-不满意</div>
+                        </div>
+                    </div>
+
+                    <!-- 对话节点 -->
+                    <div class="flow-node dialog-node draggable" id="node-dialog" style="position: absolute; left: 940px; top: 40px;">
+                        <div class="node-header">
+                            <img src="assets/CodeBuddyAssets/8734_459203/1.svg" alt="icon">
+                            <span class="node-title">对话节点</span>
+                        </div>
+                        <div class="node-content">
+                            <div class="content-label">话术</div>
+                            <div class="content-box">您的满意是我们的追求，感谢您的评价，我们会继续竭诚为您服务。期待您的再次光临，再见！</div>
+                        </div>
+                    </div>
+
+                    <!-- 不满意回复 -->
+                    <div class="flow-node dialog-node draggable" id="node-unsatisfied-reply" style="position: absolute; left: 940px; top: 220px;">
+                        <div class="node-header">
+                            <img src="assets/CodeBuddyAssets/8734_459203/1.svg" alt="icon">
+                            <span class="node-title">不满意回复</span>
+                        </div>
+                        <div class="node-content">
+                            <div class="content-label">话术</div>
+                            <div class="content-box">对不起给您带来了不好的体验，我们会在通话结束后为您发送一份问卷和精美礼品，请在短信中查收填写。感谢您的回访，祝您生活愉快再见！</div>
+                        </div>
+                    </div>
+
+                    <!-- 结束通话节点 -->
+                    <div class="flow-node small draggable" id="node-end" style="position: absolute; left: 1260px; top: 140px;">
+                        <div class="node-header">
+                            <img src="assets/CodeBuddyAssets/8734_459055/58.svg" alt="end">
+                            <span class="node-title">结束通话</span>
+                        </div>
+                    </div>
+
+                    <!-- 底部结束节点 -->
+                    <div class="flow-node small draggable" id="node-end-bottom" style="position: absolute; left: 620px; top: 420px;">
+                        <div class="node-header">
+                            <img src="assets/CodeBuddyAssets/8734_459055/58.svg" alt="end">
+                            <span class="node-title">结束通话</span>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧AI助手面板 -->
+        <aside class="ai-panel">
+            <div class="ai-panel-header">
+                <div class="close-btn">
+                    <img src="assets/CodeBuddyAssets/8734_459055/60.svg" alt="close">
+                </div>
+            </div>
+            <div class="ai-panel-content" id="aiWelcomeView">
+                <div class="ai-greeting">
+                    <img src="assets/CodeBuddyAssets/8734_459055/61.svg" alt="wave">
+                    <div class="greeting-text">
+                        <h2>嗨，teemo</h2>
+                        <h2>跟着我一起快速上手吧</h2>
+                    </div>
+                </div>
+                <div class="ai-help-section">
+                    <div class="ai-help-title">我可以帮你</div>
+                    <div class="help-cards">
+                        <div class="help-card" id="helpCardOptimize">
+                            <img src="assets/CodeBuddyAssets/8734_459055/62.svg" alt="icon">
+                            <div class="help-card-text">对标座席话术，优化每个对话节点的表达</div>
+                            <div class="help-card-label">话术优化</div>
+                        </div>
+                        <div class="help-card">
+                            <img src="assets/CodeBuddyAssets/8734_459055/64.svg" alt="icon">
+                            <div class="help-card-text">模拟对话验证填充逻辑和条件分支是否正确</div>
+                            <div class="help-card-label">流程检查</div>
+                        </div>
+                        <div class="help-card">
+                            <img src="assets/CodeBuddyAssets/8734_459055/63.svg" alt="icon">
+                            <div class="help-card-text">用自然语言描述业务需求，自动生成新的对话节点和槽位配置</div>
+                            <div class="help-card-label">节点配置</div>
+                        </div>
+                        <div class="help-card">
+                            <img src="assets/CodeBuddyAssets/8734_459055/65.svg" alt="icon">
+                            <div class="help-card-text">上传业务需求文档，自动解析并生成完整的语音对话流程</div>
+                            <div class="help-card-label">文档建流</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- AI对话视图 -->
+            <div class="ai-chat-view" id="aiChatView">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- 动态消息将通过JavaScript插入 -->
+                </div>
+            </div>
+            <div class="ai-input-area">
+                <!-- 多场景确认窗口 -->
+                <div class="multi-scene-confirm" id="multiSceneConfirm">
+                    <div class="multi-scene-confirm-header">
+                        <span class="multi-scene-confirm-title">多场景确认</span>
+                        <span class="multi-scene-confirm-timer" id="multiSceneTimer">30 秒后执行"新增挽留全局节点"</span>
+                    </div>
+                    <div class="multi-scene-confirm-subtitle">发现两处其他分类请确认执行情况</div>
+                    <div class="multi-scene-confirm-desc">已在画布中高亮出两个节点卡片，请选择需要增加挽留话术的节点卡片</div>
+                    <div class="multi-scene-confirm-options">
+                        <div class="multi-scene-option selected" data-option="global">
+                            <span>新增挽留全局节点</span>
+                        </div>
+                        <div class="multi-scene-option" data-option="welcome">
+                            <span>在"欢迎语"卡片新增</span>
+                        </div>
+                        <div class="multi-scene-option" data-option="testdrive">
+                            <span>在"试驾是否满意"卡片新增</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-input-box" id="aiInputBox">
+                    <textarea class="ai-input-textarea" id="aiInputTextarea" placeholder="我可以帮你优化话术、检查流程逻辑或者生成新的节点配置" rows="1"></textarea>
+                    <div class="ai-input-actions">
+                        <div class="upload-btn">
+                            <img src="assets/CodeBuddyAssets/8734_459055/67.svg" alt="upload">
+                            <span>上传文件</span>
+                        </div>
+                        <div class="send-btn" id="sendBtn">
+                            <img src="assets/CodeBuddyAssets/8734_459055/68.svg" alt="send">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="exit-confirm-modal" id="exitConfirmModal" onclick="if(event.target === this) hideExitConfirmModal()">
+        <div class="exit-confirm-dialog">
+            <div class="exit-confirm-header">
+                <span class="exit-confirm-title">退出Agent编排</span>
+                <div class="exit-confirm-close" id="exitModalCloseBtn" onclick="hideExitConfirmModal()">
+                    <img src="assets/CodeBuddyAssets/8856_408893/1.svg" alt="close">
+                </div>
+            </div>
+            <div class="exit-confirm-body">
+                <p>智能体工程专家正在工作，退出后将无法继续工作，内容也将丢失</p>
+            </div>
+            <div class="exit-confirm-footer">
+                <button class="exit-confirm-btn primary" id="exitModalStayBtn" onclick="hideExitConfirmModal()">留下</button>
+                <button class="exit-confirm-btn secondary" id="exitModalExitBtn" onclick="confirmExit()">退出</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 画布平移状态
+        let canvasOffsetX = 0;
+        let canvasOffsetY = 0;
+        let isPanningCanvas = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        
+        // 画布缩放状态
+        let canvasScale = 1;
+        
+        // 任务执行控制
+        let isTaskRunning = false;
+        let taskTimers = []; // 存储所有定时器ID，用于终止时清除
+        
+        // 版本管理
+        let currentVersion = 0; // 当前版本号
+        let versionHistory = []; // 版本历史记录
+        const MIN_SCALE = 0.25;
+        const MAX_SCALE = 2;
+        const SCALE_STEP = 0.1;
+        
+        // ========== 退出提醒弹窗功能（需要在最前面定义以供onclick调用） ==========
+        
+        // 显示退出提醒弹窗
+        function showExitConfirmModal(targetUrl) {
+            const modal = document.getElementById('exitConfirmModal');
+            if (modal) {
+                modal.classList.add('active');
+                modal.dataset.targetUrl = targetUrl || '';
+            }
+        }
+        
+        // 隐藏退出提醒弹窗
+        function hideExitConfirmModal() {
+            const modal = document.getElementById('exitConfirmModal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.dataset.targetUrl = '';
+            }
+        }
+        
+        // 确认退出
+        function confirmExit() {
+            const modal = document.getElementById('exitConfirmModal');
+            const targetUrl = modal ? modal.dataset.targetUrl : '';
+            
+            // 先停止所有任务
+            if (isTaskRunning) {
+                stopAllTasks();
+            }
+            
+            // 隐藏弹窗
+            hideExitConfirmModal();
+            
+            // 跳转到目标页面（这里模拟返回首页）
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            } else {
+                // 默认返回首页或刷新页面
+                window.location.href = 'agent-builder.html';
+            }
+        }
+        
+        // 绘制贝塞尔曲线连接线
+        function drawConnections() {
+            const svg = document.getElementById('connectionsSvg');
+            const canvas = document.getElementById('flowCanvas');
+            
+            if (!svg || !canvas) return;
+            
+            // 清空现有连接线
+            svg.innerHTML = '';
+            
+            // 获取画布的边界矩形
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            // 获取回复选项元素
+            const replyOptions = document.querySelectorAll('.reply-option');
+            const satisfiedOption = replyOptions[0]; // 满意
+            const unsatisfiedOption = replyOptions[1]; // 不满意
+            const otherOption = replyOptions[2]; // 其他分类
+            
+            // 定义连接关系
+            // toHeader: true 表示连接到目标卡片的标题栏
+            const connections = [
+                // 开始通话 -> 欢迎语（连接到标题栏）
+                { from: 'node-start', to: 'node-welcome', toHeader: true },
+                // 满意选项 -> 试驾是否满意(满意)（连接到标题栏）
+                { fromElement: satisfiedOption, to: 'node-satisfied', toHeader: true },
+                // 不满意选项 -> 试驾是否满意(不满意)（连接到标题栏）
+                { fromElement: unsatisfiedOption, to: 'node-unsatisfied', toHeader: true },
+                // 其他分类选项 -> 底部结束通话（连接到标题栏）
+                { fromElement: otherOption, to: 'node-end-bottom', toHeader: true },
+                // 试驾是否满意(满意) -> 对话节点（从卡片右侧连出，连接到标题栏）
+                { from: 'node-satisfied', to: 'node-dialog', toHeader: true },
+                // 试驾是否满意(不满意) -> 不满意回复（从卡片右侧连出，连接到标题栏）
+                { from: 'node-unsatisfied', to: 'node-unsatisfied-reply', toHeader: true },
+                // 对话节点 -> 结束通话（从卡片右侧连出，连接到标题栏）
+                { from: 'node-dialog', to: 'node-end', toHeader: true },
+                // 不满意回复 -> 结束通话（从卡片右侧连出，连接到标题栏）
+                { from: 'node-unsatisfied-reply', to: 'node-end', toHeader: true }
+            ];
+            
+            connections.forEach(conn => {
+                let fromRect, toRect;
+                let startX, startY, endX, endY;
+                
+                // 计算起始点（需要除以缩放因子，因为getBoundingClientRect返回的是屏幕坐标）
+                if (conn.fromElement) {
+                    // 从回复选项元素的右侧中心连出
+                    fromRect = conn.fromElement.getBoundingClientRect();
+                    startX = (fromRect.right - canvasRect.left) / canvasScale;
+                    startY = (fromRect.top + fromRect.height / 2 - canvasRect.top) / canvasScale;
+                } else {
+                    const fromNode = document.getElementById(conn.from);
+                    if (!fromNode) return;
+                    fromRect = fromNode.getBoundingClientRect();
+                    // 从卡片右侧中心连出
+                    startX = (fromRect.right - canvasRect.left) / canvasScale;
+                    startY = (fromRect.top + fromRect.height / 2 - canvasRect.top) / canvasScale;
+                }
+                
+                // 计算结束点
+                const toNode = document.getElementById(conn.to);
+                if (!toNode) return;
+                
+                if (conn.toHeader) {
+                    // 连接到标题栏的左侧中心
+                    const toHeader = toNode.querySelector('.node-header');
+                    if (toHeader) {
+                        const headerRect = toHeader.getBoundingClientRect();
+                        endX = (toNode.getBoundingClientRect().left - canvasRect.left) / canvasScale;
+                        endY = (headerRect.top + headerRect.height / 2 - canvasRect.top) / canvasScale;
+                    } else {
+                        toRect = toNode.getBoundingClientRect();
+                        endX = (toRect.left - canvasRect.left) / canvasScale;
+                        endY = (toRect.top + toRect.height / 2 - canvasRect.top) / canvasScale;
+                    }
+                } else {
+                    toRect = toNode.getBoundingClientRect();
+                    endX = (toRect.left - canvasRect.left) / canvasScale;
+                    endY = (toRect.top + toRect.height / 2 - canvasRect.top) / canvasScale;
+                }
+                
+                // 为起点小圆点留出空间
+                const dotRadius = 4;
+                const arrowSize = 5; // 箭头大小（更小）
+                startX += dotRadius; // 起始点向右偏移，为圆点留空间
+                
+                // 计算控制点以创建平滑的贝塞尔曲线
+                const dx = endX - startX;
+                const controlOffset = Math.min(Math.abs(dx) * 0.4, 50);
+                
+                // 起始控制点（向右延伸）
+                const cp1X = startX + controlOffset;
+                const cp1Y = startY;
+                
+                // 结束控制点（向左延伸）
+                const cp2X = endX - controlOffset;
+                const cp2Y = endY;
+                
+                // 计算曲线末端的切线方向（贝塞尔曲线在t=1处的切线）
+                // 切线方向 = 3 * (P3 - P2) = 3 * ((endX, endY) - (cp2X, cp2Y))
+                const tangentX = endX - cp2X;
+                const tangentY = endY - cp2Y;
+                const tangentLen = Math.sqrt(tangentX * tangentX + tangentY * tangentY);
+                
+                // 归一化切线向量
+                const normTangentX = tangentX / tangentLen;
+                const normTangentY = tangentY / tangentLen;
+                
+                // 箭头的实际终点（线条终点稍微缩进，为箭头留位置）
+                const arrowTipX = endX;
+                const arrowTipY = endY;
+                const lineEndX = endX - normTangentX * arrowSize;
+                const lineEndY = endY - normTangentY * arrowSize;
+                
+                // 创建贝塞尔曲线路径
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', `M ${startX} ${startY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${lineEndX} ${lineEndY}`);
+                path.setAttribute('stroke', '#D6DBE3');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('fill', 'none');
+                svg.appendChild(path);
+                
+                // 绘制箭头（跟随曲线切线方向）
+                // 箭头是一个小三角形，顶点在曲线末端
+                const perpX = -normTangentY; // 垂直于切线的向量
+                const perpY = normTangentX;
+                const arrowWidth = 3; // 箭头宽度的一半（更小）
+                
+                // 箭头底部两个点
+                const arrowBaseX = arrowTipX - normTangentX * arrowSize;
+                const arrowBaseY = arrowTipY - normTangentY * arrowSize;
+                const arrowLeft = {
+                    x: arrowBaseX + perpX * arrowWidth,
+                    y: arrowBaseY + perpY * arrowWidth
+                };
+                const arrowRight = {
+                    x: arrowBaseX - perpX * arrowWidth,
+                    y: arrowBaseY - perpY * arrowWidth
+                };
+                
+                // 绘制箭头三角形
+                const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                arrow.setAttribute('points', `${arrowTipX},${arrowTipY} ${arrowLeft.x},${arrowLeft.y} ${arrowRight.x},${arrowRight.y}`);
+                arrow.setAttribute('fill', '#D6DBE3');
+                svg.appendChild(arrow);
+                
+                // 绘制起始点小圆点（白色填充，灰色描边）
+                const startDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                startDot.setAttribute('cx', startX - dotRadius);
+                startDot.setAttribute('cy', startY);
+                startDot.setAttribute('r', dotRadius);
+                startDot.setAttribute('fill', 'white');
+                startDot.setAttribute('stroke', '#D6DBE3');
+                startDot.setAttribute('stroke-width', '2');
+                svg.appendChild(startDot);
+            });
+        }
+        
+        // 应用画布变换（平移和缩放）
+        function applyCanvasTransform() {
+            const canvas = document.getElementById('flowCanvas');
+            if (!canvas) return;
+            canvas.style.transform = `translate(${canvasOffsetX}px, ${canvasOffsetY}px) scale(${canvasScale})`;
+        }
+        
+        // 缩放画布
+        function zoomCanvas(delta, centerX, centerY) {
+            const viewport = document.getElementById('canvasViewport');
+            const canvas = document.getElementById('flowCanvas');
+            if (!viewport || !canvas) return;
+            
+            const oldScale = canvasScale;
+            canvasScale += delta;
+            canvasScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, canvasScale));
+            
+            // 如果缩放没有变化，直接返回
+            if (oldScale === canvasScale) return;
+            
+            // 如果提供了中心点，以该点为中心进行缩放
+            if (centerX !== undefined && centerY !== undefined) {
+                const viewportRect = viewport.getBoundingClientRect();
+                // 鼠标相对于视口的位置
+                const mouseX = centerX - viewportRect.left;
+                const mouseY = centerY - viewportRect.top;
+                
+                // 计算缩放前鼠标在画布上的位置
+                const canvasX = (mouseX - canvasOffsetX) / oldScale;
+                const canvasY = (mouseY - canvasOffsetY) / oldScale;
+                
+                // 缩放后保持鼠标指向的画布位置不变
+                canvasOffsetX = mouseX - canvasX * canvasScale;
+                canvasOffsetY = mouseY - canvasY * canvasScale;
+            }
+            
+            // 限制平移范围
+            canvasOffsetX = Math.min(canvasOffsetX, 200);
+            canvasOffsetY = Math.min(canvasOffsetY, 200);
+            
+            applyCanvasTransform();
+            drawConnections();
+        }
+        
+        // 放大
+        function zoomIn() {
+            zoomCanvas(SCALE_STEP);
+        }
+        
+        // 缩小
+        function zoomOut() {
+            zoomCanvas(-SCALE_STEP);
+        }
+        
+        // 重置缩放
+        function resetZoom() {
+            canvasScale = 1;
+            canvasOffsetX = 0;
+            canvasOffsetY = 0;
+            applyCanvasTransform();
+            drawConnections();
+        }
+        
+        // 居中画布内容
+        function centerCanvas() {
+            const viewport = document.getElementById('canvasViewport');
+            const canvas = document.getElementById('flowCanvas');
+            if (!viewport || !canvas) return;
+            
+            // 获取视口尺寸
+            const viewportRect = viewport.getBoundingClientRect();
+            
+            // 获取所有节点计算内容边界
+            const nodes = canvas.querySelectorAll('.flow-node');
+            if (nodes.length === 0) return;
+            
+            let minX = Infinity, minY = Infinity;
+            let maxX = -Infinity, maxY = -Infinity;
+            
+            nodes.forEach(node => {
+                const left = parseInt(node.style.left) || 0;
+                const top = parseInt(node.style.top) || 0;
+                const width = node.offsetWidth;
+                const height = node.offsetHeight;
+                
+                minX = Math.min(minX, left);
+                minY = Math.min(minY, top);
+                maxX = Math.max(maxX, left + width);
+                maxY = Math.max(maxY, top + height);
+            });
+            
+            // 计算内容尺寸
+            const contentWidth = maxX - minX;
+            const contentHeight = maxY - minY;
+            
+            // 计算内容中心点
+            const contentCenterX = minX + contentWidth / 2;
+            const contentCenterY = minY + contentHeight / 2;
+            
+            // 计算视口中心点
+            const viewportCenterX = viewportRect.width / 2;
+            const viewportCenterY = viewportRect.height / 2;
+            
+            // 计算偏移量使内容居中
+            canvasOffsetX = viewportCenterX - contentCenterX * canvasScale;
+            canvasOffsetY = viewportCenterY - contentCenterY * canvasScale;
+            
+            applyCanvasTransform();
+            drawConnections();
+        }
+        
+        // 拖拽节点功能
+        function initDraggable() {
+            const canvas = document.getElementById('flowCanvas');
+            const draggables = document.querySelectorAll('.draggable');
+            
+            let isDragging = false;
+            let currentNode = null;
+            let startX, startY;
+            let initialLeft, initialTop;
+            
+            draggables.forEach(node => {
+                node.addEventListener('mousedown', (e) => {
+                    // 忽略在输入框等元素上的点击
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                        return;
+                    }
+                    
+                    isDragging = true;
+                    currentNode = node;
+                    node.classList.add('dragging');
+                    
+                    // 记录起始位置
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialLeft = parseInt(node.style.left) || 0;
+                    initialTop = parseInt(node.style.top) || 0;
+                    
+                    e.preventDefault();
+                    e.stopPropagation(); // 阻止事件冒泡到画布
+                });
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging || !currentNode) return;
+                
+                // 计算移动距离（考虑缩放因素）
+                const dx = (e.clientX - startX) / canvasScale;
+                const dy = (e.clientY - startY) / canvasScale;
+                
+                // 更新节点位置
+                currentNode.style.left = (initialLeft + dx) + 'px';
+                currentNode.style.top = (initialTop + dy) + 'px';
+                
+                // 实时重绘连接线
+                drawConnections();
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (currentNode) {
+                    currentNode.classList.remove('dragging');
+                }
+                isDragging = false;
+                currentNode = null;
+            });
+        }
+        
+        // 无限画布平移功能
+        function initCanvasPan() {
+            const viewport = document.getElementById('canvasViewport');
+            const canvas = document.getElementById('flowCanvas');
+            
+            if (!viewport || !canvas) return;
+            
+            viewport.addEventListener('mousedown', (e) => {
+                // 如果点击的是节点，不触发画布拖拽
+                if (e.target.closest('.draggable') || e.target.closest('.tools-panel')) {
+                    return;
+                }
+                
+                isPanningCanvas = true;
+                viewport.classList.add('dragging');
+                panStartX = e.clientX - canvasOffsetX;
+                panStartY = e.clientY - canvasOffsetY;
+                
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isPanningCanvas) return;
+                
+                canvasOffsetX = e.clientX - panStartX;
+                canvasOffsetY = e.clientY - panStartY;
+                
+                // 限制向右拖动的范围（不要让画布左边缘露出太多）
+                canvasOffsetX = Math.min(canvasOffsetX, 200);
+                canvasOffsetY = Math.min(canvasOffsetY, 200);
+                
+                // 应用偏移和缩放
+                applyCanvasTransform();
+                
+                // 重绘连接线
+                drawConnections();
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isPanningCanvas) {
+                    viewport.classList.remove('dragging');
+                    isPanningCanvas = false;
+                }
+            });
+            
+            // 鼠标滚轮滚动和缩放
+            viewport.addEventListener('wheel', (e) => {
+                // Ctrl/Cmd + 滚轮 进行缩放
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -SCALE_STEP : SCALE_STEP;
+                    zoomCanvas(delta, e.clientX, e.clientY);
+                    return;
+                }
+                
+                // 按住Shift键时水平滚动
+                if (e.shiftKey) {
+                    canvasOffsetX -= e.deltaY;
+                } else {
+                    canvasOffsetX -= e.deltaX;
+                    canvasOffsetY -= e.deltaY;
+                }
+                
+                // 限制滚动范围
+                canvasOffsetX = Math.min(canvasOffsetX, 200);
+                canvasOffsetY = Math.min(canvasOffsetY, 200);
+                
+                applyCanvasTransform();
+                
+                drawConnections();
+                e.preventDefault();
+            }, { passive: false });
+        }
+        
+        // 初始化缩放按钮
+        function initZoomControls() {
+            const toolBtns = document.querySelectorAll('.tool-btn');
+            // 工具栏按钮顺序: 添加、网格、分割线、缩小、放大
+            if (toolBtns.length >= 5) {
+                // 缩小按钮 (第4个)
+                toolBtns[3].addEventListener('click', zoomOut);
+                toolBtns[3].title = '缩小 (Ctrl + 滚轮向下)';
+                
+                // 放大按钮 (第5个)
+                toolBtns[4].addEventListener('click', zoomIn);
+                toolBtns[4].title = '放大 (Ctrl + 滚轮向上)';
+            }
+        }
+        
+        // 初始化AI助手交互
+        function initAIAssistant() {
+            const welcomeView = document.getElementById('aiWelcomeView');
+            const chatView = document.getElementById('aiChatView');
+            const chatMessages = document.getElementById('chatMessages');
+            const helpCardOptimize = document.getElementById('helpCardOptimize');
+            
+            // 任务列表数据 - 添加关联的节点ID
+            const tasks = [
+                { text: '查看知识库内容，筛选相关话术', status: 'pending', nodeId: null },
+                { text: '采集优秀坐席历史通话记录，选用高评分话术样本', status: 'pending', nodeId: null },
+                { text: '提取当前智能体各节点现有 Prompt 和话术配置', status: 'pending', nodeId: null },
+                { text: '生成优化版话术，融合优秀坐席的表达风格和情绪策略', status: 'pending', nodeId: 'node-welcome' },
+                { text: '对优化后话术执行合规扫描，确保无违禁词和违规承诺', status: 'pending', nodeId: null }
+            ];
+            
+            // 话术节点列表 - 需要润色的节点及其原始/优化后的话术
+            const scriptNodes = [
+                {
+                    nodeId: 'node-welcome',
+                    nodeName: '欢迎语',
+                    originalScript: '您好，这里是XX客服中心，您预约了4月14日上午10点整来大明宫总店，请问时间需要调整吗？',
+                    optimizedScript: '您好，这里是悦蓝客服中心，我查询到您预约了4月14日上午10点整来大明宫总店试驾，请问您的行程有变化吗？我们随时为您调整~'
+                },
+                {
+                    nodeId: 'node-dialog',
+                    nodeName: '对话节点',
+                    originalScript: '您的满意是我们的追求，感谢您的评价，我们会继续竭诚为您服务。期待您的再次光临，再见！',
+                    optimizedScript: '非常感谢您的认可！您的满意就是对我们最大的鼓励。如果后续有任何需要，随时联系我们，期待再次为您服务，祝您生活愉快，再见~'
+                },
+                {
+                    nodeId: 'node-unsatisfied-reply',
+                    nodeName: '不满意回复',
+                    originalScript: '对不起给您带来了不好的体验，我们会在通话结束后为您发送一份问卷和精美礼品，请在短信中查收填写。感谢您的回访，祝您生活愉快再见！',
+                    optimizedScript: '非常抱歉给您带来了不好的体验，我们会认真反思改进。稍后会为您发送一份反馈问卷和专属补偿礼品，请您查收。感谢您宝贵的意见，祝您生活愉快~'
+                }
+            ];
+            
+            // 当前正在处理的节点索引
+            let currentNodeIndex = 0;
+            
+            // 流式输出函数
+            function typeText(element, text, speed = 30, callback) {
+                let index = 0;
+                const cursor = document.createElement('span');
+                cursor.className = 'typing-cursor';
+                element.appendChild(cursor);
+                
+                function type() {
+                    if (index < text.length) {
+                        // 在光标前插入文字
+                        const textNode = document.createTextNode(text.charAt(index));
+                        element.insertBefore(textNode, cursor);
+                        index++;
+                        setTimeout(type, speed);
+                    } else {
+                        // 打字完成，移除光标
+                        cursor.remove();
+                        if (callback) callback();
+                    }
+                }
+                type();
+            }
+            
+            // 高亮画布节点 - 表示正在处理
+            function highlightNode(nodeId) {
+                const node = document.getElementById(nodeId);
+                if (!node) return;
+                
+                // 添加处理中状态
+                node.classList.add('ai-processing');
+                
+                // 高亮话术内容区域
+                const contentBoxes = node.querySelectorAll('.content-box');
+                contentBoxes.forEach(box => {
+                    if (box.closest('.reply-list')) return; // 跳过回复选项
+                    
+                    // 保存原始文本
+                    const originalText = box.textContent;
+                    box.setAttribute('data-original-text', originalText);
+                    
+                    // 移除之前的完成状态（如果有）
+                    box.classList.remove('ai-completed');
+                    const existingBadge = box.querySelector('.completed-badge');
+                    if (existingBadge) existingBadge.remove();
+                    
+                    // 添加高亮类
+                    box.classList.add('ai-highlight');
+                    
+                    // 重构内容：添加AI图标、星星闪烁和文字容器
+                    box.innerHTML = `
+                        <img src="assets/CodeBuddyAssets/8734_461326/1.svg" class="ai-badge" alt="AI">
+                        <div class="sparkle-container">
+                            <div class="sparkle"></div>
+                            <div class="sparkle"></div>
+                            <div class="sparkle"></div>
+                            <div class="sparkle"></div>
+                        </div>
+                        <span class="highlight-text">${originalText}</span>
+                    `;
+                });
+                
+                // 滚动画布使节点可见
+                scrollToNode(nodeId);
+            }
+            
+            // 移除节点高亮
+            function removeHighlight(nodeId) {
+                const node = document.getElementById(nodeId);
+                if (!node) return;
+                
+                node.classList.remove('ai-processing');
+                
+                const contentBoxes = node.querySelectorAll('.content-box');
+                contentBoxes.forEach(box => {
+                    if (box.closest('.reply-list')) return;
+                    
+                    box.classList.remove('ai-highlight');
+                    // 内容会在 updateNodeScript 中更新
+                });
+            }
+            
+            // 更新节点话术内容
+            function updateNodeScript(nodeId, newScript) {
+                const node = document.getElementById(nodeId);
+                if (!node) return;
+                
+                // 找到话术内容区域（非回复选项的content-box）
+                const contentBoxes = node.querySelectorAll('.content-box');
+                contentBoxes.forEach(box => {
+                    if (box.closest('.reply-list')) return; // 跳过回复选项
+                    
+                    // 移除高亮类
+                    box.classList.remove('ai-highlight');
+                    
+                    // 添加更新动画
+                    box.classList.add('text-updating');
+                    
+                    // 添加完成状态
+                    box.classList.add('ai-completed');
+                    
+                    // 恢复为纯文本内容，并添加完成图标
+                    box.innerHTML = `
+                        ${newScript}
+                        <div class="completed-badge">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="white"/>
+                            </svg>
+                        </div>
+                    `;
+                    
+                    // 移除动画类
+                    setTimeout(() => {
+                        box.classList.remove('text-updating');
+                    }, 400);
+                    
+                    // 2秒后自动移除完成图标
+                    setTimeout(() => {
+                        const badge = box.querySelector('.completed-badge');
+                        if (badge) {
+                            badge.style.animation = 'completedBadgeOut 0.3s ease-out forwards';
+                            setTimeout(() => {
+                                badge.remove();
+                                box.classList.remove('ai-completed');
+                            }, 300);
+                        }
+                    }, 2000);
+                });
+            }
+            
+            // 滚动画布使节点可见
+            function scrollToNode(nodeId) {
+                const node = document.getElementById(nodeId);
+                const viewport = document.getElementById('canvasViewport');
+                if (!node || !viewport) return;
+                
+                const nodeRect = node.getBoundingClientRect();
+                const viewportRect = viewport.getBoundingClientRect();
+                
+                // 检查节点是否在视口外
+                const isOutside = nodeRect.left < viewportRect.left || 
+                                  nodeRect.right > viewportRect.right ||
+                                  nodeRect.top < viewportRect.top ||
+                                  nodeRect.bottom > viewportRect.bottom;
+                
+                if (isOutside) {
+                    // 计算需要的偏移量，使节点居中显示
+                    const nodeLeft = parseInt(node.style.left) || 0;
+                    const nodeTop = parseInt(node.style.top) || 0;
+                    
+                    const targetOffsetX = viewportRect.width / 2 - nodeLeft * canvasScale - node.offsetWidth * canvasScale / 2;
+                    const targetOffsetY = viewportRect.height / 2 - nodeTop * canvasScale - node.offsetHeight * canvasScale / 2;
+                    
+                    // 平滑滚动到目标位置
+                    animateCanvasPan(targetOffsetX, targetOffsetY);
+                }
+            }
+            
+            // 画布平滑滚动动画
+            function animateCanvasPan(targetX, targetY) {
+                const startX = canvasOffsetX;
+                const startY = canvasOffsetY;
+                const duration = 500;
+                const startTime = Date.now();
+                
+                function animate() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // 使用缓动函数
+                    const easeProgress = 1 - Math.pow(1 - progress, 3);
+                    
+                    canvasOffsetX = startX + (targetX - startX) * easeProgress;
+                    canvasOffsetY = startY + (targetY - startY) * easeProgress;
+                    
+                    // 限制范围
+                    canvasOffsetX = Math.min(canvasOffsetX, 200);
+                    canvasOffsetY = Math.min(canvasOffsetY, 200);
+                    
+                    applyCanvasTransform();
+                    drawConnections();
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                }
+                
+                animate();
+            }
+            
+            // 按顺序润色节点
+            function processNodesSequentially(callback) {
+                currentNodeIndex = 0;
+                
+                function processNext() {
+                    if (currentNodeIndex >= scriptNodes.length) {
+                        if (callback) callback();
+                        return;
+                    }
+                    
+                    const nodeData = scriptNodes[currentNodeIndex];
+                    
+                    // 高亮当前节点
+                    highlightNode(nodeData.nodeId);
+                    
+                    // 模拟处理时间
+                    const processTime = 1500 + Math.random() * 1000;
+                    
+                    setTimeout(() => {
+                        // 移除高亮
+                        removeHighlight(nodeData.nodeId);
+                        
+                        // 更新话术内容
+                        updateNodeScript(nodeData.nodeId, nodeData.optimizedScript);
+                        
+                        currentNodeIndex++;
+                        
+                        // 处理下一个节点
+                        setTimeout(processNext, 500);
+                    }, processTime);
+                }
+                
+                processNext();
+            }
+            
+            // 创建用户消息气泡
+            function createUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message user';
+                messageDiv.innerHTML = `<div class="user-bubble">${text}</div>`;
+                return messageDiv;
+            }
+            
+            // 创建AI思考区域
+            function createThinkingSection() {
+                const thinkingDiv = document.createElement('div');
+                thinkingDiv.className = 'ai-thinking';
+                thinkingDiv.innerHTML = `
+                    <div class="thinking-header expanded">
+                        <span>进入深度分析并规划任务。此内容自动进行，请勿退出或切换其他模块</span>
+                        <img src="assets/CodeBuddyAssets/8734_459997/2.svg" alt="expand" class="expand-icon">
+                    </div>
+                    <div class="thinking-content" id="thinkingContent">
+                        <div class="thinking-item">
+                            <div class="thinking-item-header">
+                                <img src="assets/CodeBuddyAssets/8734_459997/3.svg" alt="agent" class="agent-icon">
+                                <span class="agent-name">智能体工程专家</span>
+                                <span class="agent-time" id="thinkingTime">0.0s</span>
+                            </div>
+                            <div class="thinking-item-content" id="thinkingText"></div>
+                        </div>
+                    </div>
+                `;
+                return thinkingDiv;
+            }
+            
+            // 创建任务执行卡片
+            function createTaskCard() {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'task-card';
+                cardDiv.innerHTML = `
+                    <div class="task-card-header">
+                        <div class="task-card-header-left">
+                            <img src="assets/CodeBuddyAssets/8734_461193/2.svg" alt="icon">
+                            <span class="task-card-title">任务执行中</span>
+                        </div>
+                        <div class="task-card-progress">
+                            <span id="taskProgress">0/5</span>
+                            <img src="assets/CodeBuddyAssets/8734_461193/3.svg" alt="expand">
+                        </div>
+                    </div>
+                    <div class="task-card-body" id="taskList">
+                        ${tasks.map((task, index) => `
+                            <div class="task-item pending" id="taskItem${index}">
+                                <img src="assets/CodeBuddyAssets/8734_461193/8.svg" alt="status" id="taskIcon${index}">
+                                <div class="task-item-content">
+                                    <div class="task-item-text">${task.text}</div>
+                                    <div class="task-item-status" id="taskStatus${index}" style="display: none;"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                // 添加任务列表展开/收起功能
+                const header = cardDiv.querySelector('.task-card-header');
+                header.addEventListener('click', () => {
+                    const body = cardDiv.querySelector('.task-card-body');
+                    const isCollapsed = body.classList.contains('collapsed');
+                    if (isCollapsed) {
+                        // 展开
+                        body.classList.remove('collapsed');
+                        cardDiv.classList.remove('collapsed');
+                    } else {
+                        // 折叠
+                        body.classList.add('collapsed');
+                        cardDiv.classList.add('collapsed');
+                    }
+                });
+                
+                return cardDiv;
+            }
+            
+            // 更新任务状态
+            function updateTaskStatus(taskIndex, status, statusText = '') {
+                const taskItem = document.getElementById(`taskItem${taskIndex}`);
+                const taskIcon = document.getElementById(`taskIcon${taskIndex}`);
+                const taskStatusEl = document.getElementById(`taskStatus${taskIndex}`);
+                const progressEl = document.getElementById('taskProgress');
+                
+                if (!taskItem) return;
+                
+                // 移除所有状态类
+                taskItem.classList.remove('pending', 'in-progress', 'completed');
+                taskItem.classList.add(status);
+                
+                // 更新图标
+                if (status === 'completed') {
+                    taskIcon.src = 'assets/CodeBuddyAssets/8734_461193/4.svg';
+                } else if (status === 'in-progress') {
+                    taskIcon.src = 'assets/CodeBuddyAssets/8734_461193/7.svg';
+                } else {
+                    taskIcon.src = 'assets/CodeBuddyAssets/8734_461193/8.svg';
+                }
+                
+                // 更新状态文本
+                if (statusText) {
+                    taskStatusEl.textContent = statusText;
+                    taskStatusEl.style.display = 'block';
+                } else {
+                    taskStatusEl.style.display = 'none';
+                }
+                
+                // 更新进度
+                const completedCount = document.querySelectorAll('.task-item.completed').length;
+                const inProgressCount = document.querySelectorAll('.task-item.in-progress').length;
+                progressEl.textContent = `${completedCount + inProgressCount}/${tasks.length}`;
+            }
+            
+            // 显示AI工作提示条并置灰工具栏
+            function showAIWorkingToast() {
+                const toast = document.getElementById('aiWorkingToast');
+                if (toast) {
+                    toast.classList.add('active');
+                }
+                // 同时置灰工具栏
+                const toolbar = document.querySelector('.toolbar');
+                if (toolbar) {
+                    toolbar.classList.add('disabled');
+                }
+                // 设置输入框为执行中状态
+                const inputBox = document.querySelector('.ai-input-box');
+                if (inputBox) {
+                    inputBox.classList.add('executing');
+                }
+                // 将发送按钮更换为暂停按钮
+                const sendBtn = document.querySelector('.send-btn img');
+                if (sendBtn) {
+                    sendBtn.dataset.originalSrc = sendBtn.src;
+                    sendBtn.src = 'assets/CodeBuddyAssets/8734_459055/pause.svg';
+                }
+            }
+            
+            // 隐藏AI工作提示条
+            function hideAIWorkingToast() {
+                const toast = document.getElementById('aiWorkingToast');
+                if (toast) {
+                    toast.classList.remove('active');
+                }
+            }
+            
+            // 锁定画布 - 禁止手动操作
+            function lockCanvas() {
+                const overlay = document.getElementById('canvasLockOverlay');
+                if (overlay) {
+                    overlay.classList.add('active');
+                }
+                // 工具栏置灰已在 showAIWorkingToast 中处理
+            }
+            
+            // 解锁画布和工具栏 - 恢复手动操作
+            function unlockCanvas() {
+                const overlay = document.getElementById('canvasLockOverlay');
+                const toolbar = document.querySelector('.toolbar');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+                if (toolbar) {
+                    toolbar.classList.remove('disabled');
+                }
+                // 恢复输入框默认状态
+                const inputBox = document.querySelector('.ai-input-box');
+                if (inputBox) {
+                    inputBox.classList.remove('executing');
+                }
+                // 恢复发送按钮原始图标
+                const sendBtn = document.querySelector('.send-btn img');
+                if (sendBtn && sendBtn.dataset.originalSrc) {
+                    sendBtn.src = sendBtn.dataset.originalSrc;
+                }
+                // 隐藏提示条
+                hideAIWorkingToast();
+            }
+            
+            // 终止所有正在执行的任务
+            function stopAllTasks() {
+                if (!isTaskRunning) return;
+                
+                // 清除所有定时器
+                taskTimers.forEach(timerId => {
+                    clearTimeout(timerId);
+                    clearInterval(timerId);
+                });
+                taskTimers = [];
+                
+                // 标记任务已停止
+                isTaskRunning = false;
+                
+                // 移除所有节点的高亮状态
+                document.querySelectorAll('.flow-node').forEach(node => {
+                    node.classList.remove('processing');
+                });
+                
+                // 更新任务卡片
+                const taskCard = document.querySelector('.task-card');
+                if (taskCard) {
+                    const titleEl = taskCard.querySelector('.task-card-title');
+                    const headerIcon = taskCard.querySelector('.task-card-header-left img');
+                    const progressEl = document.getElementById('taskProgress');
+                    
+                    // 标题改为红色"任务已终止"
+                    if (titleEl) {
+                        titleEl.textContent = '任务已终止';
+                        titleEl.style.color = '#E54545';
+                    }
+                    // 更换图标为红色叉号
+                    if (headerIcon) {
+                        headerIcon.src = 'assets/CodeBuddyAssets/8871_413308/7.svg';
+                    }
+                    
+                    // 计算已完成的任务数量
+                    const completedItems = document.querySelectorAll('.task-item.completed');
+                    const completedCount = completedItems.length;
+                    if (progressEl) {
+                        progressEl.textContent = `${completedCount}/${tasks.length}`;
+                    }
+                }
+                
+                // 将正在执行中的任务标记为已终止状态（红色）
+                const inProgressItems = document.querySelectorAll('.task-item.in-progress');
+                inProgressItems.forEach(item => {
+                    item.classList.remove('in-progress');
+                    item.classList.add('terminated');
+                    
+                    // 更新图标为红色叉号
+                    const iconEl = item.querySelector('img');
+                    if (iconEl) {
+                        iconEl.src = 'assets/CodeBuddyAssets/8871_413308/7.svg';
+                    }
+                    
+                    // 更新文字颜色为红色
+                    const textEl = item.querySelector('.task-item-text');
+                    if (textEl) {
+                        textEl.style.color = '#E54545';
+                        textEl.style.fontWeight = '500';
+                    }
+                    
+                    // 隐藏状态文字
+                    const statusEl = item.querySelector('.task-item-status');
+                    if (statusEl) {
+                        statusEl.style.display = 'none';
+                    }
+                });
+                
+                // 将待执行的任务更新为灰色禁用状态
+                const pendingItems = document.querySelectorAll('.task-item.pending');
+                pendingItems.forEach(item => {
+                    item.classList.add('disabled');
+                    
+                    // 更新图标为灰色圆点
+                    const iconEl = item.querySelector('img');
+                    if (iconEl) {
+                        iconEl.src = 'assets/CodeBuddyAssets/8871_413308/8.svg';
+                    }
+                    
+                    // 更新文字颜色为灰色
+                    const textEl = item.querySelector('.task-item-text');
+                    if (textEl) {
+                        textEl.style.color = 'rgba(0, 0, 0, 0.30)';
+                    }
+                });
+                
+                // 显示终止结论区域
+                showTerminatedConclusion();
+                
+                // 解锁画布，恢复手动操作
+                unlockCanvas();
+            }
+            
+            // 显示任务终止结论
+            function showTerminatedConclusion() {
+                // 创建结论区域元素（放在卡片外部）
+                const conclusionDiv = document.createElement('div');
+                conclusionDiv.className = 'task-conclusion';
+                conclusionDiv.id = 'taskConclusion';
+                conclusionDiv.innerHTML = `
+                    <div class="task-conclusion-text">用户终止了任务。</div>
+                    <div class="reply-actions">
+                        <div class="reply-action-btn" title="点赞" onclick="likeReply(this)">
+                            <img src="assets/CodeBuddyAssets/8871_413308/9.svg" alt="点赞">
+                        </div>
+                        <div class="reply-action-btn" title="点踩" onclick="dislikeReply(this)">
+                            <img src="assets/CodeBuddyAssets/8871_413308/10.svg" alt="点踩">
+                        </div>
+                        <div class="reply-action-btn" title="重试" onclick="retryTask()">
+                            <img src="assets/CodeBuddyAssets/8871_413308/11.svg" alt="重试">
+                        </div>
+                    </div>
+                `;
+                
+                // 添加到聊天消息区域
+                chatMessages.appendChild(conclusionDiv);
+                
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 执行任务序列
+            function executeTasks(taskCard) {
+                let currentTask = 0;
+                const taskDurations = [1500, 2000, 1800, 6000, 2500]; // 每个任务的模拟执行时间（任务4时间更长，因为要处理多个节点）
+                
+                // 标记任务开始运行，清空之前的定时器
+                isTaskRunning = true;
+                taskTimers = [];
+                
+                // 锁定画布，禁止手动操作
+                lockCanvas();
+                
+                // 标记所有任务完成
+                function markAllTasksCompleted() {
+                    // 标记任务已停止运行
+                    isTaskRunning = false;
+                    taskTimers = [];
+                    
+                    const titleEl = taskCard.querySelector('.task-card-title');
+                    const progressEl = document.getElementById('taskProgress');
+                    const headerIcon = taskCard.querySelector('.task-card-header-left img');
+                    const expandIcon = taskCard.querySelector('.task-card-progress img');
+                    
+                    if (titleEl) {
+                        titleEl.textContent = '任务已完成';
+                    }
+                    if (progressEl) {
+                        progressEl.innerHTML = `${tasks.length}/${tasks.length}`;
+                    }
+                    // 更换header图标为绿色图标
+                    if (headerIcon) {
+                        headerIcon.src = 'assets/CodeBuddyAssets/8787_463425/2.svg';
+                    }
+                    // 更换右侧展开图标
+                    if (expandIcon) {
+                        expandIcon.src = 'assets/CodeBuddyAssets/8787_463425/3.svg';
+                    }
+                    
+                    // 折叠任务列表
+                    const taskBody = document.getElementById('taskList');
+                    if (taskBody) {
+                        taskBody.classList.add('collapsed');
+                        taskCard.classList.add('collapsed');
+                    }
+                    
+                    // 显示结论区域和生成版本
+                    showTaskConclusion();
+                    
+                    // 解锁画布，恢复手动操作
+                    unlockCanvas();
+                }
+                
+                function executeNextTask() {
+                    // 检查任务是否已被终止
+                    if (!isTaskRunning) return;
+                    
+                    if (currentTask >= tasks.length) {
+                        // 所有任务完成
+                        markAllTasksCompleted();
+                        return;
+                    }
+                    
+                    // 开始执行当前任务
+                    updateTaskStatus(currentTask, 'in-progress', formatTime(0) + ' 正在执行中...');
+                    
+                    // 任务4：生成优化版话术 - 需要联动画布节点
+                    if (currentTask === 3) {
+                        // 开始按顺序处理节点
+                        currentNodeIndex = 0;
+                        processNodeForTask(currentTask);
+                        return;
+                    }
+                    
+                    // 启动任务计时器
+                    const taskStartTime = Date.now();
+                    const statusEl = document.getElementById(`taskStatus${currentTask}`);
+                    
+                    const taskTimer = setInterval(() => {
+                        if (!isTaskRunning) {
+                            clearInterval(taskTimer);
+                            return;
+                        }
+                        const elapsed = Math.floor((Date.now() - taskStartTime) / 1000);
+                        const minutes = Math.floor(elapsed / 60);
+                        const seconds = elapsed % 60;
+                        const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        
+                        // 获取任务描述
+                        const descriptions = [
+                            '正在检索知识库...',
+                            '正在分析通话记录...',
+                            '正在提取配置信息...',
+                            '正在按节点类型逐一改写',
+                            '正在执行合规检查...'
+                        ];
+                        
+                        if (statusEl) {
+                            statusEl.textContent = `${timeStr} ${descriptions[currentTask]}`;
+                        }
+                    }, 1000);
+                    taskTimers.push(taskTimer);
+                    
+                    // 模拟任务完成
+                    const completionTimer = setTimeout(() => {
+                        if (!isTaskRunning) return;
+                        clearInterval(taskTimer);
+                        updateTaskStatus(currentTask, 'completed');
+                        currentTask++;
+                        
+                        // 执行下一个任务
+                        const nextTaskTimer = setTimeout(executeNextTask, 300);
+                        taskTimers.push(nextTaskTimer);
+                    }, taskDurations[currentTask]);
+                    taskTimers.push(completionTimer);
+                }
+                
+                // 处理任务4中的节点润色
+                function processNodeForTask(taskIndex) {
+                    if (!isTaskRunning) return;
+                    
+                    const taskStartTime = Date.now();
+                    const statusEl = document.getElementById(`taskStatus${taskIndex}`);
+                    let taskTimer;
+                    
+                    // 更新计时器
+                    taskTimer = setInterval(() => {
+                        if (!isTaskRunning) {
+                            clearInterval(taskTimer);
+                            return;
+                        }
+                        const elapsed = Math.floor((Date.now() - taskStartTime) / 1000);
+                        const minutes = Math.floor(elapsed / 60);
+                        const seconds = elapsed % 60;
+                        const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        
+                        if (currentNodeIndex < scriptNodes.length) {
+                            const nodeName = scriptNodes[currentNodeIndex].nodeName;
+                            if (statusEl) {
+                                statusEl.textContent = `${timeStr} 正在优化"${nodeName}"话术...`;
+                            }
+                        }
+                    }, 1000);
+                    taskTimers.push(taskTimer);
+                    
+                    // 开始处理节点
+                    function processNextNode() {
+                        if (!isTaskRunning) return;
+                        
+                        if (currentNodeIndex >= scriptNodes.length) {
+                            // 所有节点处理完成
+                            clearInterval(taskTimer);
+                            updateTaskStatus(taskIndex, 'completed');
+                            currentTask = taskIndex + 1;
+                            
+                            // 执行下一个任务
+                            const nextTimer = setTimeout(executeNextTask, 300);
+                            taskTimers.push(nextTimer);
+                            return;
+                        }
+                        
+                        const nodeData = scriptNodes[currentNodeIndex];
+                        
+                        // 高亮当前节点
+                        highlightNode(nodeData.nodeId);
+                        
+                        // 更新状态显示
+                        const elapsed = Math.floor((Date.now() - taskStartTime) / 1000);
+                        const minutes = Math.floor(elapsed / 60);
+                        const seconds = elapsed % 60;
+                        const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        if (statusEl) {
+                            statusEl.textContent = `${timeStr} 正在优化"${nodeData.nodeName}"话术...`;
+                        }
+                        
+                        // 模拟处理时间
+                        const processTime = 1500 + Math.random() * 1000;
+                        
+                        const processTimer = setTimeout(() => {
+                            if (!isTaskRunning) return;
+                            
+                            // 移除高亮
+                            removeHighlight(nodeData.nodeId);
+                            
+                            // 更新话术内容
+                            updateNodeScript(nodeData.nodeId, nodeData.optimizedScript);
+                            
+                            currentNodeIndex++;
+                            
+                            // 处理下一个节点
+                            const nextNodeTimer = setTimeout(processNextNode, 500);
+                            taskTimers.push(nextNodeTimer);
+                        }, processTime);
+                        taskTimers.push(processTimer);
+                    }
+                    
+                    processNextNode();
+                }
+                
+                function formatTime(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+                
+                // 开始执行第一个任务
+                setTimeout(executeNextTask, 500);
+            }
+            
+            // 显示任务完成结论
+            function showTaskConclusion() {
+                // 生成新版本
+                currentVersion++;
+                const newVersion = {
+                    version: currentVersion,
+                    timestamp: new Date(),
+                    description: '话术优化'
+                };
+                versionHistory.push(newVersion);
+                
+                // 创建结论区域元素（放在卡片外部）
+                const conclusionDiv = document.createElement('div');
+                conclusionDiv.className = 'task-conclusion';
+                conclusionDiv.id = 'taskConclusion';
+                conclusionDiv.innerHTML = `
+                    <div class="task-conclusion-text">已完成润色，生成 V ${currentVersion}.0 版本，可以直接在画布中进行测试。</div>
+                    <div class="version-bars-container" id="versionBarsContainer"></div>
+                    <div class="reply-actions">
+                        <div class="reply-action-btn" title="点赞" onclick="likeReply(this)">
+                            <img src="assets/CodeBuddyAssets/8787_463425/4.svg" alt="点赞">
+                        </div>
+                        <div class="reply-action-btn" title="点踩" onclick="dislikeReply(this)">
+                            <img src="assets/CodeBuddyAssets/8787_463425/5.svg" alt="点踩">
+                        </div>
+                        <div class="reply-action-btn" title="重试" onclick="retryTask()">
+                            <img src="assets/CodeBuddyAssets/8787_463425/6.svg" alt="重试">
+                        </div>
+                    </div>
+                `;
+                
+                // 添加到聊天消息区域（卡片外部）
+                chatMessages.appendChild(conclusionDiv);
+                
+                // 更新版本条
+                updateVersionBars();
+                
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 更新版本条显示
+            function updateVersionBars() {
+                const container = document.getElementById('versionBarsContainer');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                versionHistory.forEach((ver, index) => {
+                    const isLatestVersion = index === versionHistory.length - 1;
+                    
+                    const versionBar = document.createElement('div');
+                    versionBar.className = 'version-bar';
+                    
+                    // 最新版本只显示"当前版本"标签，其他版本显示"回退至此版本"链接
+                    versionBar.innerHTML = `
+                        <span class="version-number">V ${ver.version}.0</span>
+                        <span class="version-actions-right">
+                            ${isLatestVersion ? '<span class="version-current-label">当前版本</span>' : '<span class="version-action" data-version="' + ver.version + '">回退至此版本</span>'}
+                        </span>
+                    `;
+                    
+                    // 添加回退点击事件（仅非最新版本）
+                    if (!isLatestVersion) {
+                        const actionEl = versionBar.querySelector('.version-action');
+                        if (actionEl) {
+                            actionEl.addEventListener('click', () => {
+                                rollbackToVersion(ver.version);
+                            });
+                        }
+                    }
+                    
+                    container.appendChild(versionBar);
+                });
+            }
+            
+            // 回退到指定版本
+            function rollbackToVersion(version) {
+                // 找到目标版本
+                const targetIndex = versionHistory.findIndex(v => v.version === version);
+                if (targetIndex === -1) return;
+                
+                // 更新当前版本
+                currentVersion = version;
+                
+                // 移除目标版本之后的所有版本
+                versionHistory = versionHistory.slice(0, targetIndex + 1);
+                
+                // 更新版本条显示
+                updateVersionBars();
+                
+                // 更新结论文本
+                const conclusionTextEl = document.getElementById('taskConclusionText');
+                if (conclusionTextEl) {
+                    conclusionTextEl.textContent = `已回退至 V ${version}.0 版本，可以直接在画布中进行测试。`;
+                }
+                
+                // TODO: 这里可以添加实际的回退逻辑，恢复画布上的节点状态
+                console.log(`已回退至版本 V ${version}.0`);
+            }
+            
+            // 复制结论内容
+            function copyConclusion() {
+                const conclusionTextEl = document.getElementById('taskConclusionText');
+                if (conclusionTextEl) {
+                    const text = conclusionTextEl.textContent;
+                    navigator.clipboard.writeText(text).then(() => {
+                        // 可以添加复制成功的提示
+                        console.log('已复制到剪贴板');
+                    }).catch(err => {
+                        console.error('复制失败:', err);
+                    });
+                }
+            }
+            
+            // 点赞回复
+            function likeReply(btn) {
+                // 获取点击的点赞按钮
+                const clickedBtn = btn || event.currentTarget;
+                const parentContainer = clickedBtn.closest('.reply-actions');
+                
+                if (parentContainer) {
+                    const likeBtn = parentContainer.querySelector('.reply-action-btn[title="点赞"]');
+                    const dislikeBtn = parentContainer.querySelector('.reply-action-btn[title="点踩"]');
+                    
+                    if (likeBtn) {
+                        const isActive = likeBtn.classList.contains('active');
+                        likeBtn.classList.toggle('active');
+                        
+                        // 如果点赞激活，取消点踩
+                        if (!isActive && dislikeBtn) {
+                            dislikeBtn.classList.remove('active');
+                        }
+                    }
+                }
+                console.log('点赞');
+            }
+            
+            // 点踩回复
+            function dislikeReply(btn) {
+                // 获取点击的点踩按钮
+                const clickedBtn = btn || event.currentTarget;
+                const parentContainer = clickedBtn.closest('.reply-actions');
+                
+                if (parentContainer) {
+                    const likeBtn = parentContainer.querySelector('.reply-action-btn[title="点赞"]');
+                    const dislikeBtn = parentContainer.querySelector('.reply-action-btn[title="点踩"]');
+                    
+                    if (dislikeBtn) {
+                        const isActive = dislikeBtn.classList.contains('active');
+                        dislikeBtn.classList.toggle('active');
+                        
+                        // 如果点踩激活，取消点赞
+                        if (!isActive && likeBtn) {
+                            likeBtn.classList.remove('active');
+                        }
+                    }
+                }
+                console.log('点踩');
+            }
+            
+            // 重试任务
+            function retryTask() {
+                console.log('重试任务');
+                
+                // 移除当前的结论区域
+                const conclusionEl = document.getElementById('taskConclusion');
+                if (conclusionEl) {
+                    conclusionEl.remove();
+                }
+                
+                // 移除当前的任务卡片
+                const taskCard = document.querySelector('.task-card');
+                if (taskCard) {
+                    taskCard.remove();
+                }
+                
+                // 重置任务状态
+                tasks.forEach(task => task.status = 'pending');
+                
+                // 重置版本历史
+                versionHistory = [];
+                currentVersion = 0;
+                
+                // 显示AI工作提示条
+                showAIWorkingToast();
+                
+                // 创建新的任务卡片并开始执行
+                setTimeout(() => {
+                    const newTaskCard = createTaskCard();
+                    chatMessages.appendChild(newTaskCard);
+                    
+                    // 滚动到底部
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // 开始执行任务
+                    executeTasks(newTaskCard);
+                }, 300);
+            }
+            
+            // 开始流式对话
+            function startStreamingChat(userMessage, thinkingText) {
+                // 清空之前的消息
+                chatMessages.innerHTML = '';
+                
+                // 重置任务状态
+                tasks.forEach(task => task.status = 'pending');
+                
+                // 显示AI工作提示条
+                showAIWorkingToast();
+                
+                // 1. 先显示用户消息
+                const userMsgEl = createUserMessage(userMessage);
+                chatMessages.appendChild(userMsgEl);
+                
+                // 2. 添加AI思考区域（默认展开）
+                setTimeout(() => {
+                    const thinkingSection = createThinkingSection();
+                    chatMessages.appendChild(thinkingSection);
+                    
+                    // 绑定思考区域的展开/收起事件
+                    const header = thinkingSection.querySelector('.thinking-header');
+                    const content = thinkingSection.querySelector('.thinking-content');
+                    header.addEventListener('click', () => {
+                        header.classList.toggle('expanded');
+                        header.classList.toggle('collapsed');
+                        content.classList.toggle('collapsed');
+                    });
+                    
+                    // 3. 开始流式输出思考内容
+                    const thinkingTextEl = thinkingSection.querySelector('#thinkingText');
+                    const thinkingTimeEl = thinkingSection.querySelector('#thinkingTime');
+                    
+                    // 启动计时器
+                    let startTime = Date.now();
+                    const timer = setInterval(() => {
+                        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                        thinkingTimeEl.textContent = elapsed + 's';
+                    }, 100);
+                    
+                    // 流式输出思考文字
+                    typeText(thinkingTextEl, thinkingText, 25, () => {
+                        // 输出完成后停止计时
+                        clearInterval(timer);
+                        
+                        // 4. 思考完成，收起思考区域
+                        setTimeout(() => {
+                            // 更改header文案
+                            header.querySelector('span').textContent = '已完成需求分析并规划任务';
+                            // 更换展开图标
+                            header.querySelector('.expand-icon').src = 'assets/CodeBuddyAssets/8793_466919/1.svg';
+                            // 收起思考内容
+                            header.classList.remove('expanded');
+                            header.classList.add('collapsed');
+                            content.classList.add('collapsed');
+                            
+                            // 5. 显示任务执行卡片
+                            setTimeout(() => {
+                                const taskCard = createTaskCard();
+                                chatMessages.appendChild(taskCard);
+                                
+                                // 滚动到底部
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                                
+                                // 6. 开始执行任务
+                                executeTasks(taskCard);
+                            }, 400);
+                        }, 600);
+                    });
+                    
+                }, 300);
+            }
+            
+            // 点击"对标座席话术"卡片
+            if (helpCardOptimize) {
+                helpCardOptimize.addEventListener('click', () => {
+                    // 隐藏欢迎视图，显示对话视图
+                    welcomeView.classList.add('hidden');
+                    chatView.classList.add('active');
+                    
+                    // 开始流式输出
+                    const userMsg = '对标座席话术，优化每个对话节点的表达';
+                    const thinkingMsg = '管理员说要对标座席话术，优化每个对话节点的表达，我来判断需要使用的能力以及执行顺序。我需要理解需求，查看知识库中的相关话术...';
+                    
+                    startStreamingChat(userMsg, thinkingMsg);
+                });
+            }
+            
+            // 关闭按钮返回欢迎视图
+            const closeBtn = document.querySelector('.ai-panel .close-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    welcomeView.classList.remove('hidden');
+                    chatView.classList.remove('active');
+                    // 清空聊天消息
+                    chatMessages.innerHTML = '';
+                });
+            }
+            
+            // 发送/暂停按钮点击事件
+            const sendBtn = document.querySelector('.send-btn');
+            const inputTextarea = document.getElementById('aiInputTextarea');
+            
+            if (sendBtn) {
+                sendBtn.addEventListener('click', () => {
+                    // 如果任务正在执行，点击则终止任务
+                    if (isTaskRunning) {
+                        stopAllTasks();
+                        return;
+                    }
+                    
+                    // 获取输入内容
+                    const userMessage = inputTextarea.value.trim();
+                    if (!userMessage) return;
+                    
+                    // 清空输入框
+                    inputTextarea.value = '';
+                    inputTextarea.style.height = 'auto';
+                    
+                    // 隐藏欢迎视图，显示对话视图
+                    welcomeView.classList.add('hidden');
+                    chatView.classList.add('active');
+                    
+                    // 根据用户输入判断意图并生成思考内容
+                    const thinkingMsg = generateThinkingMessage(userMessage);
+                    
+                    // 开始流式输出
+                    startStreamingChat(userMessage, thinkingMsg);
+                });
+            }
+            
+            // 输入框回车发送
+            if (inputTextarea) {
+                // 自动调整高度
+                inputTextarea.addEventListener('input', () => {
+                    inputTextarea.style.height = 'auto';
+                    inputTextarea.style.height = Math.min(inputTextarea.scrollHeight, 120) + 'px';
+                });
+                
+                // 回车发送（Shift+Enter换行）
+                inputTextarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendBtn.click();
+                    }
+                });
+            }
+        }
+        
+        // 根据用户输入生成思考内容
+        function generateThinkingMessage(userMessage) {
+            const lowerMsg = userMessage.toLowerCase();
+            
+            // 话术优化相关
+            if (lowerMsg.includes('话术') || lowerMsg.includes('优化') || lowerMsg.includes('润色') || lowerMsg.includes('表达')) {
+                return `用户希望${userMessage}，我来判断需要使用的能力以及执行顺序。我需要理解需求，查看知识库中的相关话术，分析当前流程节点，然后进行优化...`;
+            }
+            
+            // 流程检查相关
+            if (lowerMsg.includes('检查') || lowerMsg.includes('验证') || lowerMsg.includes('测试') || lowerMsg.includes('流程')) {
+                return `用户希望${userMessage}，我需要分析当前的对话流程，检查各个节点的逻辑是否正确，验证条件分支的完整性...`;
+            }
+            
+            // 节点配置相关
+            if (lowerMsg.includes('节点') || lowerMsg.includes('配置') || lowerMsg.includes('添加') || lowerMsg.includes('创建')) {
+                return `用户希望${userMessage}，我需要理解业务需求，设计合适的节点结构，配置相应的槽位和参数...`;
+            }
+            
+            // 文档建流相关
+            if (lowerMsg.includes('文档') || lowerMsg.includes('上传') || lowerMsg.includes('解析')) {
+                return `用户希望${userMessage}，我需要解析文档内容，提取关键业务逻辑，自动生成对话流程...`;
+            }
+            
+            // 默认思考内容
+            return `收到用户的请求：${userMessage}。我来分析需求并确定执行方案...`;
+        }
+        
+        // 修改画布场景的流式对话
+        function startModifyCanvasChat(userMessage, thinkingText) {
+            const chatMessages = document.getElementById('chatMessages');
+            const welcomeView = document.getElementById('aiWelcomeView');
+            const chatView = document.getElementById('aiChatView');
+            
+            if (!chatMessages || !welcomeView || !chatView) {
+                console.error('找不到必需的DOM元素');
+                return;
+            }
+            
+            // 清空之前的消息
+            chatMessages.innerHTML = '';
+            
+            // 隐藏欢迎视图，显示对话视图
+            welcomeView.classList.add('hidden');
+            chatView.classList.add('active');
+            
+            // 显示AI工作提示条（内联实现）
+            const toast = document.getElementById('aiWorkingToast');
+            if (toast) {
+                toast.classList.add('active');
+            }
+            
+            // 锁定画布（内联实现）
+            const overlay = document.getElementById('canvasLockOverlay');
+            if (overlay) {
+                overlay.classList.add('active');
+            }
+            
+            // 标记任务开始
+            isTaskRunning = true;
+            taskTimers = [];
+            
+            // 1. 显示用户消息
+            const userMsgEl = document.createElement('div');
+            userMsgEl.className = 'chat-message user';
+            userMsgEl.innerHTML = `
+                <div class="message-bubble user-bubble">${userMessage}</div>
+            `;
+            chatMessages.appendChild(userMsgEl);
+            
+            // 2. 添加AI思考区域
+            setTimeout(() => {
+                const thinkingSection = document.createElement('div');
+                thinkingSection.className = 'modify-canvas-thinking';
+                thinkingSection.innerHTML = `
+                    <div class="thinking-header-simple">
+                        <span class="thinking-hint">进入深度分析并规划任务。此内容自动进行，请勿退出或切换其他模块</span>
+                        <img src="assets/CodeBuddyAssets/8787_464023/1.svg" class="thinking-collapse-icon" alt="collapse">
+                    </div>
+                    <div class="thinking-content-wrapper">
+                        <div class="thinking-timeline"></div>
+                        <div class="thinking-detail">
+                            <div class="thinking-agent-header">
+                                <img src="assets/CodeBuddyAssets/8787_464023/2.svg" class="agent-icon" alt="agent">
+                                <span class="agent-name">智能体工程专家</span>
+                                <span class="thinking-time" id="modifyThinkingTime">0s</span>
+                            </div>
+                            <div class="thinking-agent-content" id="modifyThinkingText"></div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(thinkingSection);
+                
+                // 绑定展开/收起事件
+                const header = thinkingSection.querySelector('.thinking-header-simple');
+                const contentWrapper = thinkingSection.querySelector('.thinking-content-wrapper');
+                header.addEventListener('click', () => {
+                    contentWrapper.classList.toggle('collapsed');
+                    header.querySelector('.thinking-collapse-icon').classList.toggle('collapsed');
+                });
+                
+                // 流式输出思考内容
+                const thinkingTextEl = thinkingSection.querySelector('#modifyThinkingText');
+                const thinkingTimeEl = thinkingSection.querySelector('#modifyThinkingTime');
+                let charIndex = 0;
+                const startTime = Date.now();
+                
+                // 更新时间
+                const timeInterval = setInterval(() => {
+                    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                    thinkingTimeEl.textContent = elapsed + 's';
+                }, 100);
+                taskTimers.push(timeInterval);
+                
+                // 流式输出文字
+                const textInterval = setInterval(() => {
+                    if (charIndex < thinkingText.length) {
+                        thinkingTextEl.textContent += thinkingText[charIndex];
+                        charIndex++;
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    } else {
+                        clearInterval(textInterval);
+                        clearInterval(timeInterval);
+                        
+                        // 思考完成后，收起思考区域并显示任务卡片
+                        setTimeout(() => {
+                            // 收起思考区域
+                            const thinkingWrapper = thinkingSection.querySelector('.thinking-content-wrapper');
+                            const collapseIcon = thinkingSection.querySelector('.thinking-collapse-icon');
+                            const hintText = thinkingSection.querySelector('.thinking-hint');
+                            
+                            if (thinkingWrapper) {
+                                thinkingWrapper.classList.add('collapsed');
+                            }
+                            if (collapseIcon) {
+                                collapseIcon.classList.add('collapsed');
+                            }
+                            if (hintText) {
+                                hintText.textContent = '已完成需求分析并规划任务';
+                            }
+                            
+                            showModifyCanvasTaskCard(chatMessages);
+                        }, 500);
+                    }
+                }, 30);
+                taskTimers.push(textInterval);
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 300);
+        }
+        
+        // 修改画布场景的任务定义
+        const modifyCanvasTasks = [
+            { id: 0, title: '识别挽留触发条件', status: 'pending' },
+            { id: 1, title: '采集历史通话中挽留成功的优秀话术样本', status: 'pending' },
+            { id: 2, title: '读取当前对话流程，定位挽留节点的插入位置', status: 'pending', hint: '等待管理员选择，30秒后自动执行"新增挽留全局节点"' },
+            { id: 3, title: '配置挽留节点的槽位和分支逻辑，生成分层挽留话术', status: 'pending' },
+            { id: 4, title: '挽留话术后链接挂断节点', status: 'pending' }
+        ];
+        
+        // 显示修改画布任务卡片
+        function showModifyCanvasTaskCard(chatMessages) {
+            // 重置任务状态
+            modifyCanvasTasks.forEach(task => task.status = 'pending');
+            
+            const taskCard = document.createElement('div');
+            taskCard.className = 'modify-task-card';
+            taskCard.id = 'modifyTaskCard';
+            taskCard.innerHTML = `
+                <div class="modify-task-card-header">
+                    <div class="modify-task-card-header-left">
+                        <img src="assets/CodeBuddyAssets/8789_466137/1.svg" alt="loading" id="modifyTaskIcon">
+                        <span class="modify-task-card-title" id="modifyTaskTitle">任务执行中</span>
+                    </div>
+                    <div class="modify-task-card-progress" id="modifyTaskProgress">
+                        <span id="modifyTaskCount">0/${modifyCanvasTasks.length}</span>
+                        <img src="assets/CodeBuddyAssets/8789_466137/2.svg" alt="expand">
+                    </div>
+                </div>
+                <div class="modify-task-list" id="modifyTaskList">
+                    ${modifyCanvasTasks.map((task, index) => `
+                        <div class="modify-task-item" id="modifyTaskItem${index}">
+                            <img src="assets/CodeBuddyAssets/8789_466105/7.svg" alt="status" id="modifyTaskStatus${index}">
+                            <div class="modify-task-item-content">
+                                <div class="modify-task-item-title disabled" id="modifyTaskText${index}">${task.title}</div>
+                                ${task.hint ? `<div class="modify-task-item-hint" id="modifyTaskHint${index}" style="display: none;">${task.hint}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            chatMessages.appendChild(taskCard);
+            
+            // 绑定展开/收起事件
+            const progressBtn = taskCard.querySelector('#modifyTaskProgress');
+            progressBtn.addEventListener('click', () => {
+                taskCard.classList.toggle('collapsed');
+            });
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 开始执行任务
+            executeModifyCanvasTasks(taskCard);
+        }
+        
+        // 执行修改画布任务序列
+        function executeModifyCanvasTasks(taskCard) {
+            let currentTask = 0;
+            const taskDurations = [1500, 2000, 3000, 2500, 1500];
+            
+            function updateModifyTaskStatus(taskIndex, status) {
+                const titleEl = document.getElementById(`modifyTaskText${taskIndex}`);
+                const statusImg = document.getElementById(`modifyTaskStatus${taskIndex}`);
+                const hintEl = document.getElementById(`modifyTaskHint${taskIndex}`);
+                const countEl = document.getElementById('modifyTaskCount');
+                
+                modifyCanvasTasks[taskIndex].status = status;
+                
+                if (status === 'completed') {
+                    if (titleEl) {
+                        titleEl.classList.remove('active', 'disabled');
+                    }
+                    if (statusImg) {
+                        // 已完成：勾选图标
+                        statusImg.src = 'assets/CodeBuddyAssets/8789_466105/4.svg';
+                    }
+                    if (hintEl) {
+                        hintEl.style.display = 'none';
+                    }
+                    // 更新进度
+                    const completedCount = modifyCanvasTasks.filter(t => t.status === 'completed').length;
+                    if (countEl) {
+                        countEl.textContent = `${completedCount}/${modifyCanvasTasks.length}`;
+                    }
+                } else if (status === 'in-progress') {
+                    if (titleEl) {
+                        titleEl.classList.remove('disabled');
+                        titleEl.classList.add('active');
+                    }
+                    if (statusImg) {
+                        // 执行中：星星图标
+                        statusImg.src = 'assets/CodeBuddyAssets/8734_461207/1.svg';
+                    }
+                    if (hintEl) {
+                        hintEl.style.display = 'block';
+                    }
+                    // 更新标题为等待状态（如果是任务2）
+                    if (taskIndex === 2) {
+                        const titleSpan = document.getElementById('modifyTaskTitle');
+                        if (titleSpan) {
+                            titleSpan.textContent = '等待用户确认，30秒后自动执行';
+                        }
+                        // 等待确认状态：使用钟表图标
+                        if (statusImg) {
+                            statusImg.src = 'assets/CodeBuddyAssets/8789_466105/6.svg';
+                        }
+                        // 显示多场景确认窗口
+                        showMultiSceneConfirm();
+                    }
+                }
+            }
+            
+            function executeNextModifyTask() {
+                if (!isTaskRunning) return;
+                
+                if (currentTask >= modifyCanvasTasks.length) {
+                    // 所有任务完成
+                    markModifyTasksCompleted(taskCard);
+                    return;
+                }
+                
+                // 更新当前任务状态为进行中
+                updateModifyTaskStatus(currentTask, 'in-progress');
+                
+                // 模拟任务执行
+                const completionTimer = setTimeout(() => {
+                    if (!isTaskRunning) return;
+                    
+                    // 如果是任务2完成，隐藏多场景确认窗口
+                    if (currentTask === 2) {
+                        hideMultiSceneConfirm();
+                    }
+                    
+                    updateModifyTaskStatus(currentTask, 'completed');
+                    currentTask++;
+                    
+                    // 更新标题
+                    const titleSpan = document.getElementById('modifyTaskTitle');
+                    if (titleSpan && currentTask < modifyCanvasTasks.length) {
+                        titleSpan.textContent = '任务执行中';
+                    }
+                    
+                    // 执行下一个任务
+                    const nextTimer = setTimeout(executeNextModifyTask, 300);
+                    taskTimers.push(nextTimer);
+                }, taskDurations[currentTask]);
+                taskTimers.push(completionTimer);
+            }
+            
+            // 开始执行第一个任务
+            setTimeout(executeNextModifyTask, 500);
+        }
+        
+        // 多场景确认窗口相关
+        let multiSceneCountdown = 30;
+        let multiSceneTimer = null;
+        
+        // 显示多场景确认窗口
+        function showMultiSceneConfirm() {
+            const confirmPanel = document.getElementById('multiSceneConfirm');
+            if (confirmPanel) {
+                confirmPanel.classList.add('show');
+                // 启动倒计时
+                multiSceneCountdown = 30;
+                updateMultiSceneTimerText();
+                multiSceneTimer = setInterval(() => {
+                    multiSceneCountdown--;
+                    updateMultiSceneTimerText();
+                    if (multiSceneCountdown <= 0) {
+                        clearInterval(multiSceneTimer);
+                        // 自动选择默认选项并隐藏
+                        hideMultiSceneConfirm();
+                    }
+                }, 1000);
+            }
+            
+            // 绑定选项点击事件
+            const options = document.querySelectorAll('.multi-scene-option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        }
+        
+        // 更新倒计时文字
+        function updateMultiSceneTimerText() {
+            const timerEl = document.getElementById('multiSceneTimer');
+            if (timerEl) {
+                timerEl.textContent = `${multiSceneCountdown} 秒后执行"新增挽留全局节点"`;
+            }
+        }
+        
+        // 隐藏多场景确认窗口
+        function hideMultiSceneConfirm() {
+            const confirmPanel = document.getElementById('multiSceneConfirm');
+            if (confirmPanel) {
+                confirmPanel.classList.remove('show');
+            }
+            if (multiSceneTimer) {
+                clearInterval(multiSceneTimer);
+                multiSceneTimer = null;
+            }
+        }
+        
+        // 标记修改画布任务全部完成
+        function markModifyTasksCompleted(taskCard) {
+            isTaskRunning = false;
+            taskTimers = [];
+            
+            const titleEl = taskCard.querySelector('#modifyTaskTitle');
+            const iconEl = taskCard.querySelector('#modifyTaskIcon');
+            
+            if (titleEl) {
+                titleEl.textContent = '任务已完成';
+            }
+            if (iconEl) {
+                iconEl.src = 'assets/CodeBuddyAssets/8787_463425/2.svg';
+            }
+            
+            // 解锁画布
+            unlockCanvas();
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            // 延迟执行以确保布局完成
+            setTimeout(() => {
+                drawConnections();
+                initDraggable();
+                initCanvasPan();
+                initZoomControls();
+                initAIAssistant();
+                // 居中画布内容
+                centerCanvas();
+            }, 100);
+        });
+        
+        // 窗口大小变化时重新绘制
+        window.addEventListener('resize', drawConnections);
+        
+        // 初始化侧边栏导航拦截
+        function initNavigationIntercept() {
+            // 获取所有侧边栏导航项（排除当前激活项和分隔线）
+            const sidebarItems = document.querySelectorAll('.left-sidebar .sidebar-item:not(.active)');
+            const sidebarLogo = document.querySelector('.left-sidebar .sidebar-logo');
+            
+            // 为每个导航项添加点击事件
+            sidebarItems.forEach((item, index) => {
+                item.addEventListener('click', (e) => {
+                    // 如果任务正在运行，显示退出提醒弹窗
+                    if (isTaskRunning) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showExitConfirmModal('agent-builder.html');
+                        return;
+                    }
+                    
+                    // 如果任务未运行，正常跳转（这里可以根据实际需求设置跳转地址）
+                    // window.location.href = 'target-page.html';
+                });
+            });
+            
+            // Logo点击返回首页
+            if (sidebarLogo) {
+                sidebarLogo.addEventListener('click', (e) => {
+                    if (isTaskRunning) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showExitConfirmModal('agent-builder.html');
+                        return;
+                    }
+                    // 正常跳转到首页
+                    window.location.href = 'agent-builder.html';
+                });
+                sidebarLogo.style.cursor = 'pointer';
+            }
+            
+            // 弹窗按钮事件绑定
+            const stayBtn = document.getElementById('exitModalStayBtn');
+            const exitBtn = document.getElementById('exitModalExitBtn');
+            const closeBtn = document.getElementById('exitModalCloseBtn');
+            
+            if (stayBtn) {
+                stayBtn.addEventListener('click', hideExitConfirmModal);
+            }
+            if (exitBtn) {
+                exitBtn.addEventListener('click', confirmExit);
+            }
+            if (closeBtn) {
+                closeBtn.addEventListener('click', hideExitConfirmModal);
+            }
+            
+            // 点击遮罩层关闭弹窗
+            const modal = document.getElementById('exitConfirmModal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        hideExitConfirmModal();
+                    }
+                });
+            }
+        }
+        
+        // 在页面加载时初始化导航拦截
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initNavigationIntercept();
+            }, 200);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_8734_460669)">
+<path d="M10.5 9.5H3.25C2.25 9.5 1.5 8.75 1.5 7.75C1.5 6.75 2.25 6 3.25 6H4.75" stroke="var(---------text-color-button, white)" style="stroke: var(---------text-color-button, white);stroke-opacity:1;" stroke-width="0.9975" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4.75049 6.00049H8.75049C9.75049 6.00049 10.5005 5.25049 10.5005 4.25049C10.5005 3.25049 9.75049 2.50049 8.75049 2.50049H4.25049" stroke="var(---------text-color-button, white)" style="stroke: var(---------text-color-button, white);stroke-opacity:1;" stroke-width="0.9975" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.54876 7.50238C9.56495 7.42033 9.6823 7.42033 9.69849 7.50238C9.89024 8.47394 10.6498 9.23348 11.6213 9.42523C11.7034 9.44142 11.7034 9.55876 11.6213 9.57496C10.6498 9.7667 9.89024 10.5262 9.69849 11.4978C9.6823 11.5798 9.56495 11.5798 9.54876 11.4978C9.35702 10.5262 8.59747 9.7667 7.62591 9.57496C7.54387 9.55876 7.54387 9.44142 7.62591 9.42523C8.59747 9.23348 9.35702 8.47394 9.54876 7.50238Z" fill="var(---------text-color-button, white)" style="fill: var(---------text-color-button, white);fill-opacity:1;"/>
+<path d="M3.00049 1.25C2.31013 1.25 1.75049 1.80964 1.75049 2.5C1.75049 3.19036 2.31013 3.75 3.00049 3.75C3.69084 3.75 4.25049 3.19036 4.25049 2.5C4.25049 1.80964 3.69084 1.25 3.00049 1.25Z" stroke="var(---------text-color-button, white)" style="stroke: var(---------text-color-button, white);stroke-opacity:1;" stroke-width="0.9975"/>
+</g>
+<defs>
+<clipPath id="clip0_8734_460669">
+<rect width="12" height="12" fill="var(---------text-color-button, white)" style="fill: var(---------text-color-button, white);fill-opacity:1;"/>
+</clipPath>
+</defs>
+</svg>
