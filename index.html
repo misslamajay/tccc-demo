@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能体管理 - 云联络中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white-1: #FFFFFF;
+            --black-1: #000000;
+            --gray-light-1: #F9FAFC;
+            --gray-light-2: #F2F4F8;
+            --gray-light-3: #E6E9F0;
+            --gray-light-4: #D1D4DE;
+            --gray-light-7: #A5A9B0;
+            --theme-light-1: #EBF3FF;
+            --theme-light-6: #1C66E5;
+            --text-primary: rgba(0, 0, 0, 0.90);
+            --text-secondary: rgba(0, 0, 0, 0.70);
+            --brand-lighten: #E3ECFF;
+            --brand-text: #0034B5;
+            --success-lighten: #E7F8F0;
+            --success-text: #088F50;
+        }
+
+        body {
+            font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-light-2);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            width: 100%;
+            height: 50px;
+            background: #2E60C4;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding-right: 20px;
+            cursor: pointer;
+        }
+
+        .logo-section img {
+            height: 24px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.90);
+        }
+
+        .nav-divider {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 0 0;
+        }
+
+        .nav-divider img {
+            height: 16px;
+        }
+
+        .nav-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .nav-selector img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-selector span {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.90);
+        }
+
+        .nav-selector .dropdown-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-right img {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.90);
+        }
+
+        /* 主容器 */
+        .main-container {
+            display: flex;
+            margin-top: 50px;
+            min-height: calc(100vh - 50px);
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 200px;
+            background: var(--white-1);
+            border-right: 1px solid var(--gray-light-3);
+            padding: 12px;
+            flex-shrink: 0;
+            height: calc(100vh - 50px);
+            position: fixed;
+            left: 0;
+            top: 50px;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            width: 100%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .menu-item:hover {
+            background: var(--gray-light-1);
+        }
+
+        .menu-item.active {
+            background: var(--theme-light-1);
+        }
+
+        .menu-item.active .menu-text {
+            color: var(--theme-light-6);
+        }
+
+        .menu-item img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .menu-text {
+            font-size: 14px;
+            color: var(--black-1);
+        }
+
+        .menu-section-title {
+            font-size: 12px;
+            color: var(--gray-light-7);
+            padding: 16px 8px 8px 8px;
+        }
+
+        .menu-item-with-arrow {
+            justify-content: space-between;
+        }
+
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-arrow {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ========== Agent Builder 视图 ========== */
+        .agent-builder-view {
+            flex: 1;
+            margin-left: 200px;
+            background: var(--white-1);
+            min-height: calc(100vh - 50px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 110px 20px 40px;
+        }
+
+        .agent-builder-view.hidden {
+            display: none;
+        }
+
+        .content-inner {
+            width: 880px;
+            max-width: 100%;
+            position: relative;
+        }
+
+        /* 标题区域 */
+        .title-section {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .main-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--black-1);
+            margin-bottom: 0;
+            line-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .ai-title-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ai-underline {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0px;
+            width: 300px;
+            height: 16px;
+        }
+
+        .beta-tag {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .beta-tag img {
+            height: 80px;
+            width: auto;
+            vertical-align: middle;
+        }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .category-tab {
+            width: 82px;
+            height: 28px;
+            padding: 0;
+            border-radius: 20px;
+            background: var(--white-1);
+            border: 1px solid var(--gray-light-3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-tab.wide {
+            width: 106px;
+        }
+
+        .category-tab:hover {
+            border-color: var(--gray-light-4);
+            background: var(--gray-light-1);
+        }
+
+        .category-tab.active {
+            background: var(--theme-light-1);
+            border-color: var(--theme-light-6);
+        }
+
+        .category-tab img {
+            width: 14px;
+            height: 14px;
+        }
+
+        .category-tab span {
+            font-size: 12px;
+            color: var(--black-1);
+        }
+
+        /* 模板卡片网格 */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 434px);
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+
+        /* 卡片动效容器 */
+        .template-card {
+            width: 434px;
+            height: 223px;
+            cursor: pointer;
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .template-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(28, 102, 229, 0.15);
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 卡片正面 */
+        .card-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: var(--gray-light-1);
+            border-radius: 16px;
+            border: 0.5px solid var(--gray-light-3);
+            overflow: hidden;
+            transition: border-color 0.3s ease;
+        }
+
+        .template-card:hover .card-content {
+            border-color: var(--theme-light-6);
+        }
+
+        /* Hover 遮罩层 */
+        .card-hover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(235, 243, 255, 0.95) 0%, rgba(212, 228, 255, 0.98) 100%);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 18px 24px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            backdrop-filter: blur(8px);
+        }
+
+        .template-card:hover .card-hover-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hover-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 12px;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.35s ease 0.1s, transform 0.35s ease 0.1s;
+        }
+
+        .template-card:hover .hover-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .qr-code-wrapper {
+            width: 103px;
+            height: 103px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+            transition: opacity 0.35s ease 0.15s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+        }
+
+        .template-card:hover .qr-code-wrapper {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .qr-code-wrapper img {
+            width: 87px;
+            height: 87px;
+        }
+
+        .build-btn {
+            width: 235px;
+            height: 32px;
+            background: var(--theme-light-6);
+            border-radius: 999px;
+            border: none;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.35s ease 0.2s, 
+                        transform 0.35s ease 0.2s, 
+                        background 0.25s ease;
+        }
+
+        .template-card:hover .build-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .build-btn:hover {
+            background: #1557c7;
+        }
+
+        .card-header {
+            padding: 20px 20px 0;
+        }
+
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            width: 394px;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .card-badge {
+            height: 20px;
+            padding: 0 8px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .card-badge.blue {
+            background: var(--brand-lighten);
+            color: var(--brand-text);
+        }
+
+        .card-badge.green {
+            background: var(--success-lighten);
+            color: var(--success-text);
+        }
+
+        .card-badge .star-icon {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .card-preview {
+            width: 394px;
+            height: 148px;
+            margin: 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-preview-bg {
+            width: 239.63px;
+            height: 246.67px;
+            position: absolute;
+            background: white;
+            box-shadow: 0px 4.7px 9.4px rgba(103, 106, 112, 0.10);
+            border-radius: 12px;
+            border: 0.5px solid var(--gray-light-3);
+        }
+
+        .card-preview-bg.back {
+            left: 85.96px;
+            top: 18.07px;
+            transform: rotate(1deg);
+            transform-origin: top left;
+        }
+
+        .card-preview-bg.front {
+            left: 68.5px;
+            top: 15.27px;
+            transform: rotate(-1deg);
+            transform-origin: top left;
+            overflow: hidden;
+        }
+
+        .card-preview-img {
+            position: absolute;
+            border-radius: 9.4px;
+        }
+
+        .card-preview-icon {
+            position: absolute;
+            left: 9.58px;
+            top: 12.52px;
+        }
+
+        /* 输入框区域 */
+        .input-section {
+            border: 1px solid var(--gray-light-4);
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--white-1);
+        }
+
+        .input-top {
+            padding: 12px 24px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-placeholder {
+            font-size: 16px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.40) 25%, rgba(0, 0, 0, 0.20) 50%, rgba(0, 0, 0, 0.40) 75%, rgba(0, 0, 0, 0.20) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .input-bottom {
+            padding: 16px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .send-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+        }
+
+        .send-btn img {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* ========== Flow Editor 视图 ========== */
+        .flow-editor-view {
+            flex: 1;
+            margin-left: 200px;
+            background: var(--gray-light-2);
+            min-height: calc(100vh - 50px);
+            display: none;
+            flex-direction: column;
+        }
+
+        .flow-editor-view.active {
+            display: flex;
+        }
+
+        /* 流程编辑器头部 */
+        .editor-header {
+            background: var(--white-1);
+            border-bottom: 1px solid var(--gray-light-3);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .editor-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--gray-light-1);
+            border: 1px solid var(--gray-light-3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-light-2);
+            border-color: var(--gray-light-4);
+        }
+
+        .back-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .editor-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .editor-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .save-btn {
+            padding: 8px 24px;
+            background: var(--theme-light-6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .save-btn:hover {
+            background: #1557c7;
+        }
+
+        /* 流程编辑器主体 */
+        .editor-body {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+
+        /* 画布区域 */
+        .canvas-area {
+            flex: 1;
+            background: #f5f7fa;
+            background-image: 
+                radial-gradient(circle, #d0d5dd 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            overflow: auto;
+            padding: 40px;
+        }
+
+        /* 流程节点 */
+        .flow-node {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+            min-width: 200px;
+            cursor: move;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .flow-node:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .flow-node.selected {
+            border-color: var(--theme-light-6);
+        }
+
+        .node-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-light-3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .node-icon.start {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .node-icon.process {
+            background: var(--theme-light-1);
+            color: var(--theme-light-6);
+        }
+
+        .node-icon.condition {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        .node-icon.end {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .node-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .node-body {
+            padding: 12px 16px;
+        }
+
+        .node-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* 连接点 */
+        .connector {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid var(--gray-light-4);
+            border-radius: 50%;
+            cursor: crosshair;
+            transition: all 0.2s;
+        }
+
+        .connector:hover {
+            background: var(--theme-light-6);
+            border-color: var(--theme-light-6);
+            transform: scale(1.2);
+        }
+
+        .connector.top {
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .connector.bottom {
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .connector.left {
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .connector.right {
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* 右侧属性面板 */
+        .property-panel {
+            width: 320px;
+            background: white;
+            border-left: 1px solid var(--gray-light-3);
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-light-3);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .panel-body {
+            padding: 16px;
+        }
+
+        .panel-section {
+            margin-bottom: 20px;
+        }
+
+        .panel-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .panel-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-light-3);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .panel-input:focus {
+            border-color: var(--theme-light-6);
+        }
+
+        .panel-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-light-3);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .panel-textarea:focus {
+            border-color: var(--theme-light-6);
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .toolbar-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--gray-light-1);
+        }
+
+        .toolbar-btn.active {
+            background: var(--theme-light-1);
+            color: var(--theme-light-6);
+        }
+
+        .toolbar-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 缩放控制 */
+        .zoom-controls {
+            position: absolute;
+            right: 340px;
+            bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 4px;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .zoom-btn:hover {
+            background: var(--gray-light-1);
+        }
+
+        .zoom-level {
+            padding: 0 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo-section" id="logoHome">
+                <img src="assets/CodeBuddyAssets/8686_423922/1.svg" alt="logo">
+                <span class="logo-text">云联络中心</span>
+            </div>
+            <div class="nav-divider">
+                <img src="assets/CodeBuddyAssets/8686_423922/2.svg" alt="divider">
+            </div>
+            <div class="nav-selector">
+                <img src="assets/CodeBuddyAssets/8686_423922/3.svg" alt="icon">
+                <span>管理端</span>
+                <img src="assets/CodeBuddyAssets/8686_423922/4.svg" alt="dropdown" class="dropdown-icon">
+            </div>
+        </div>
+        <div class="nav-right">
+            <img src="assets/CodeBuddyAssets/8686_423922/5.svg" alt="notification">
+            <div class="user-info">
+                <img src="assets/CodeBuddyAssets/8686_423922/6.svg" alt="avatar" class="user-avatar">
+                <span class="user-name">summerzheng@t...</span>
+                <img src="assets/CodeBuddyAssets/8686_423922/7.svg" alt="dropdown">
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- 左侧菜单 -->
+        <aside class="sidebar">
+            <div class="menu-item">
+                <img src="assets/CodeBuddyAssets/8686_423922/8.svg" alt="icon">
+                <span class="menu-text">服务记录</span>
+            </div>
+            <div class="menu-item">
+                <img src="assets/CodeBuddyAssets/8686_423922/9.svg" alt="icon">
+                <span class="menu-text">电话号码</span>
+            </div>
+            <div class="menu-item">
+                <img src="assets/CodeBuddyAssets/8686_423922/10.svg" alt="icon">
+                <span class="menu-text">AI 会话分析</span>
+            </div>
+            
+            <div class="menu-section-title">智能体管理</div>
+            
+            <div class="menu-item active" id="menuAgentManage">
+                <img src="assets/CodeBuddyAssets/8686_423922/11.svg" alt="icon">
+                <span class="menu-text">智能体管理</span>
+            </div>
+            <div class="menu-item">
+                <img src="assets/CodeBuddyAssets/8686_423922/12.svg" alt="icon">
+                <span class="menu-text">知识库</span>
+            </div>
+            
+            <div class="menu-section-title">人工管理</div>
+            
+            <div class="menu-item menu-item-with-arrow">
+                <div class="menu-item-left">
+                    <img src="assets/CodeBuddyAssets/8686_423922/13.svg" alt="icon">
+                    <span class="menu-text">数据看板</span>
+                </div>
+                <img src="assets/CodeBuddyAssets/8686_423922/14.svg" alt="arrow" class="menu-arrow">
+            </div>
+            <div class="menu-item menu-item-with-arrow">
+                <div class="menu-item-left">
+                    <img src="assets/CodeBuddyAssets/8686_423922/15.svg" alt="icon">
+                    <span class="menu-text">在线客服</span>
+                </div>
+                <img src="assets/CodeBuddyAssets/8686_423922/16.svg" alt="arrow" class="menu-arrow">
+            </div>
+            <div class="menu-item menu-item-with-arrow">
+                <div class="menu-item-left">
+                    <img src="assets/CodeBuddyAssets/8686_423922/17.svg" alt="icon">
+                    <span class="menu-text">电话客服</span>
+                </div>
+                <img src="assets/CodeBuddyAssets/8686_423922/18.svg" alt="arrow" class="menu-arrow">
+            </div>
+            <div class="menu-item menu-item-with-arrow">
+                <div class="menu-item-left">
+                    <img src="assets/CodeBuddyAssets/8686_423922/19.svg" alt="icon">
+                    <span class="menu-text">音频客服</span>
+                </div>
+                <img src="assets/CodeBuddyAssets/8686_423922/20.svg" alt="arrow" class="menu-arrow">
+            </div>
+            <div class="menu-item menu-item-with-arrow">
+                <div class="menu-item-left">
+                    <img src="assets/CodeBuddyAssets/8686_423922/21.svg" alt="icon">
+                    <span class="menu-text">视频客服</span>
+                </div>
+                <img src="assets/CodeBuddyAssets/8686_423922/22.svg" alt="arrow" class="menu-arrow">
+            </div>
+            <div class="menu-item menu-item-with-arrow">
+                <div class="menu-item-left">
+                    <img src="assets/CodeBuddyAssets/8686_423922/23.svg" alt="icon">
+                    <span class="menu-text">通用设置</span>
+                </div>
+                <img src="assets/CodeBuddyAssets/8686_423922/24.svg" alt="arrow" class="menu-arrow">
+            </div>
+            <div class="menu-item menu-item-with-arrow">
+                <div class="menu-item-left">
+                    <img src="assets/CodeBuddyAssets/8686_423922/25.svg" alt="icon">
+                    <span class="menu-text">客服管理</span>
+                </div>
+                <img src="assets/CodeBuddyAssets/8686_423922/26.svg" alt="arrow" class="menu-arrow">
+            </div>
+        </aside>
+
+        <!-- Agent Builder 视图 -->
+        <main class="agent-builder-view" id="agentBuilderView">
+            <div class="content-inner">
+                <!-- 标题区域 -->
+                <div class="title-section">
+                    <h1 class="main-title"><span class="beta-tag"><img src="assets/CodeBuddyAssets/8686_423922/45.svg" alt="beta"></span>智能体工程师帮你搭建 <span class="ai-title-wrapper">AI 语音智能体<img class="ai-underline" src="assets/CodeBuddyAssets/8694_442218/1.svg" alt="ai"></span></h1>
+                </div>
+
+                <!-- 分类标签 -->
+                <div class="category-tabs">
+                    <div class="category-tab active">
+                        <img src="assets/CodeBuddyAssets/8694_442218/2.svg" alt="icon">
+                        <span>通用</span>
+                    </div>
+                    <div class="category-tab">
+                        <img src="assets/CodeBuddyAssets/8694_442218/3.svg" alt="icon">
+                        <span>金融</span>
+                    </div>
+                    <div class="category-tab">
+                        <img src="assets/CodeBuddyAssets/8694_442218/4.svg" alt="icon">
+                        <span>汽车</span>
+                    </div>
+                    <div class="category-tab">
+                        <img src="assets/CodeBuddyAssets/8694_442218/5.svg" alt="icon">
+                        <span>医疗</span>
+                    </div>
+                    <div class="category-tab">
+                        <img src="assets/CodeBuddyAssets/8694_442218/6.svg" alt="icon">
+                        <span>零售</span>
+                    </div>
+                    <div class="category-tab">
+                        <img src="assets/CodeBuddyAssets/8694_442218/7.svg" alt="icon">
+                        <span>教育</span>
+                    </div>
+                    <div class="category-tab wide">
+                        <img src="assets/CodeBuddyAssets/8694_442218/8.svg" alt="icon">
+                        <span>人力资源</span>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 - 通用 -->
+                <div class="template-grid" data-category="通用">
+                    <!-- 智能客服卡片 -->
+                    <div class="template-card" data-template="智能客服">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8694_442218/9.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">智能客服</div>
+                                    <div class="card-desc">适用于各种场景的基础客服流程</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/21.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/11.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 试驾预约卡片 -->
+                    <div class="template-card" data-template="试驾预约">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8694_442218/12.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">试驾预约</div>
+                                    <div class="card-desc">适用于标准化外呼通知与确认流程</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 268.53px; height: 259.77px; left: -10.27px; top: 11px;" src="assets/CodeBuddyAssets/8694_442218/22.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/14.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 呼入流程卡片 -->
+                    <div class="template-card" data-template="呼入流程">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8694_442218/15.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">呼入流程</div>
+                                    <div class="card-desc">适用于标准化外呼通知与确认流程</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/23.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/17.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 简单通知卡片 -->
+                    <div class="template-card" data-template="简单通知">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8694_442218/18.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge green">
+                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>内容配置</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">简单通知</div>
+                                    <div class="card-desc">快速发送单向告知类信息的标准流程</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 268.53px; height: 259.77px; left: -10.27px; top: 11px;" src="assets/CodeBuddyAssets/8694_442218/24.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/20.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输入框区域 -->
+                <div class="input-section">
+                    <div class="input-top">
+                        <span class="input-placeholder">请描述你想要搭建的语音智能体</span>
+                    </div>
+                    <div class="input-bottom">
+                        <button class="input-btn">
+                            <img src="assets/CodeBuddyAssets/8686_423922/43.svg" alt="attach">
+                        </button>
+                        <img src="assets/CodeBuddyAssets/8686_423922/44.svg" alt="send" class="send-btn">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Flow Editor 视图 -->
+        <div class="flow-editor-view" id="flowEditorView">
+            <!-- 编辑器头部 -->
+            <div class="editor-header">
+                <div class="editor-header-left">
+                    <button class="back-btn" id="backBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        返回
+                    </button>
+                    <h2 class="editor-title" id="editorTitle">智能客服 - 流程编辑</h2>
+                </div>
+                <div class="editor-header-right">
+                    <button class="save-btn">保存</button>
+                </div>
+            </div>
+
+            <!-- 编辑器主体 -->
+            <div class="editor-body">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <button class="toolbar-btn active" title="选择">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" title="添加节点">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="12" y1="8" x2="12" y2="16"/>
+                            <line x1="8" y1="12" x2="16" y2="12"/>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" title="连线">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 画布区域 -->
+                <div class="canvas-area">
+                    <!-- 开始节点 -->
+                    <div class="flow-node" style="left: 100px; top: 50px;">
+                        <div class="connector bottom"></div>
+                        <div class="node-header">
+                            <div class="node-icon start">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                            </div>
+                            <span class="node-title">开始</span>
+                        </div>
+                        <div class="node-body">
+                            <div class="node-content">用户来电接入</div>
+                        </div>
+                    </div>
+
+                    <!-- 欢迎语节点 -->
+                    <div class="flow-node" style="left: 100px; top: 180px;">
+                        <div class="connector top"></div>
+                        <div class="connector bottom"></div>
+                        <div class="node-header">
+                            <div class="node-icon process">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                </svg>
+                            </div>
+                            <span class="node-title">欢迎语</span>
+                        </div>
+                        <div class="node-body">
+                            <div class="node-content">您好，欢迎致电客服中心，请问有什么可以帮您？</div>
+                        </div>
+                    </div>
+
+                    <!-- 意图识别节点 -->
+                    <div class="flow-node" style="left: 100px; top: 340px;">
+                        <div class="connector top"></div>
+                        <div class="connector bottom"></div>
+                        <div class="connector right"></div>
+                        <div class="node-header">
+                            <div class="node-icon condition">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="12 2 22 12 12 22 2 12"/>
+                                </svg>
+                            </div>
+                            <span class="node-title">意图识别</span>
+                        </div>
+                        <div class="node-body">
+                            <div class="node-content">识别用户意图，分流到对应处理流程</div>
+                        </div>
+                    </div>
+
+                    <!-- 结束节点 -->
+                    <div class="flow-node" style="left: 100px; top: 500px;">
+                        <div class="connector top"></div>
+                        <div class="node-header">
+                            <div class="node-icon end">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="6" y="6" width="12" height="12"/>
+                                </svg>
+                            </div>
+                            <span class="node-title">结束</span>
+                        </div>
+                        <div class="node-body">
+                            <div class="node-content">感谢来电，再见</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 缩放控制 -->
+                <div class="zoom-controls">
+                    <button class="zoom-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </button>
+                    <span class="zoom-level">100%</span>
+                    <button class="zoom-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 属性面板 -->
+                <div class="property-panel">
+                    <div class="panel-header">节点属性</div>
+                    <div class="panel-body">
+                        <div class="panel-section">
+                            <div class="panel-label">节点名称</div>
+                            <input type="text" class="panel-input" value="欢迎语" placeholder="请输入节点名称">
+                        </div>
+                        <div class="panel-section">
+                            <div class="panel-label">话术内容</div>
+                            <textarea class="panel-textarea" placeholder="请输入话术内容">您好，欢迎致电客服中心，请问有什么可以帮您？</textarea>
+                        </div>
+                        <div class="panel-section">
+                            <div class="panel-label">等待时间（秒）</div>
+                            <input type="number" class="panel-input" value="10" placeholder="请输入等待时间">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 视图切换
+        const agentBuilderView = document.getElementById('agentBuilderView');
+        const flowEditorView = document.getElementById('flowEditorView');
+        const editorTitle = document.getElementById('editorTitle');
+        const backBtn = document.getElementById('backBtn');
+        const logoHome = document.getElementById('logoHome');
+        const menuAgentManage = document.getElementById('menuAgentManage');
+
+        // 显示 Agent Builder 视图
+        function showAgentBuilder() {
+            agentBuilderView.classList.remove('hidden');
+            flowEditorView.classList.remove('active');
+        }
+
+        // 显示 Flow Editor 视图
+        function showFlowEditor(templateName) {
+            agentBuilderView.classList.add('hidden');
+            flowEditorView.classList.add('active');
+            editorTitle.textContent = templateName + ' - 流程编辑';
+        }
+
+        // 返回按钮点击
+        backBtn.addEventListener('click', showAgentBuilder);
+
+        // Logo 点击返回首页
+        logoHome.addEventListener('click', showAgentBuilder);
+
+        // 菜单点击返回
+        menuAgentManage.addEventListener('click', showAgentBuilder);
+
+        // 立即搭建按钮点击
+        document.querySelectorAll('.build-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const templateName = this.closest('.template-card').dataset.template;
+                showFlowEditor(templateName);
+            });
+        });
+
+        // 分类标签点击切换
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const categoryName = this.querySelector('span').textContent;
+                
+                document.querySelectorAll('.template-grid').forEach(grid => {
+                    if (grid.dataset.category === categoryName) {
+                        grid.style.display = 'grid';
+                        grid.querySelectorAll('.template-card').forEach((card, index) => {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, index * 100);
+                        });
+                    } else {
+                        grid.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 节点选择
+        document.querySelectorAll('.flow-node').forEach(node => {
+            node.addEventListener('click', function() {
+                document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
