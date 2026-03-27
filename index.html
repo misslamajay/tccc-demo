@@ -62,7 +62,6 @@
             align-items: center;
             gap: 5px;
             padding-right: 20px;
-            cursor: pointer;
         }
 
         .logo-section img {
@@ -215,8 +214,8 @@
             height: 16px;
         }
 
-        /* ========== Agent Builder 视图 ========== */
-        .agent-builder-view {
+        /* 主内容区域 */
+        .content {
             flex: 1;
             margin-left: 200px;
             background: var(--white-1);
@@ -225,10 +224,6 @@
             justify-content: center;
             align-items: flex-start;
             padding: 110px 20px 40px;
-        }
-
-        .agent-builder-view.hidden {
-            display: none;
         }
 
         .content-inner {
@@ -268,17 +263,16 @@
             height: 16px;
         }
 
-        .beta-tag {
-            display: inline-flex;
+        .ai-badge {
+            display: flex;
             align-items: center;
-            vertical-align: middle;
-            margin-right: 8px;
+            justify-content: center;
+            margin-top: 0;
         }
 
-        .beta-tag img {
-            height: 80px;
-            width: auto;
-            vertical-align: middle;
+        .ai-badge img {
+            width: 100px;
+            height: 8px;
         }
 
         /* 分类标签 */
@@ -377,7 +371,7 @@
             border-color: var(--theme-light-6);
         }
 
-        /* Hover 遮罩层 */
+        /* Hover 遮罩层 - 从底部滑入 */
         .card-hover-overlay {
             position: absolute;
             bottom: 0;
@@ -396,6 +390,7 @@
             transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                         transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         .template-card:hover .card-hover-overlay {
@@ -452,12 +447,14 @@
             color: white;
             font-size: 12px;
             font-weight: 500;
+            font-family: 'PingFang SC', sans-serif;
             cursor: pointer;
             opacity: 0;
             transform: translateY(10px);
             transition: opacity 0.35s ease 0.2s, 
                         transform 0.35s ease 0.2s, 
-                        background 0.25s ease;
+                        background 0.25s ease, 
+                        box-shadow 0.25s ease;
         }
 
         .template-card:hover .build-btn {
@@ -467,6 +464,12 @@
 
         .build-btn:hover {
             background: #1557c7;
+            box-shadow: 0 6px 20px rgba(28, 102, 229, 0.35);
+        }
+
+        .build-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 3px 10px rgba(28, 102, 229, 0.25);
         }
 
         .card-header {
@@ -505,6 +508,11 @@
         .card-badge.green {
             background: var(--success-lighten);
             color: var(--success-text);
+        }
+
+        .card-badge img {
+            width: 12px;
+            height: 12px;
         }
 
         .card-badge .star-icon {
@@ -611,6 +619,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .input-btn:hover {
+            background: var(--gray-light-1);
         }
 
         .input-btn img {
@@ -634,355 +647,18 @@
             height: 32px;
         }
 
-        /* ========== Flow Editor 视图 ========== */
-        .flow-editor-view {
-            flex: 1;
-            margin-left: 200px;
-            background: var(--gray-light-2);
-            min-height: calc(100vh - 50px);
-            display: none;
-            flex-direction: column;
-        }
-
-        .flow-editor-view.active {
-            display: flex;
-        }
-
-        /* 流程编辑器头部 */
-        .editor-header {
-            background: var(--white-1);
-            border-bottom: 1px solid var(--gray-light-3);
-            padding: 16px 24px;
-            display: flex;
+        /* Beta 标签 */
+        .beta-tag {
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
+            vertical-align: middle;
+            margin-right: 8px;
         }
 
-        .editor-header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: var(--gray-light-1);
-            border: 1px solid var(--gray-light-3);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-primary);
-            transition: all 0.2s;
-        }
-
-        .back-btn:hover {
-            background: var(--gray-light-2);
-            border-color: var(--gray-light-4);
-        }
-
-        .back-btn svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .editor-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .editor-header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .save-btn {
-            padding: 8px 24px;
-            background: var(--theme-light-6);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .save-btn:hover {
-            background: #1557c7;
-        }
-
-        /* 流程编辑器主体 */
-        .editor-body {
-            flex: 1;
-            display: flex;
-            position: relative;
-        }
-
-        /* 画布区域 */
-        .canvas-area {
-            flex: 1;
-            background: #f5f7fa;
-            background-image: 
-                radial-gradient(circle, #d0d5dd 1px, transparent 1px);
-            background-size: 20px 20px;
-            position: relative;
-            overflow: auto;
-            padding: 40px;
-        }
-
-        /* 流程节点 */
-        .flow-node {
-            position: absolute;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            border: 2px solid transparent;
-            min-width: 200px;
-            cursor: move;
-            transition: box-shadow 0.2s, border-color 0.2s;
-        }
-
-        .flow-node:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-        }
-
-        .flow-node.selected {
-            border-color: var(--theme-light-6);
-        }
-
-        .node-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--gray-light-3);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .node-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .node-icon.start {
-            background: #E8F5E9;
-            color: #4CAF50;
-        }
-
-        .node-icon.process {
-            background: var(--theme-light-1);
-            color: var(--theme-light-6);
-        }
-
-        .node-icon.condition {
-            background: #FFF3E0;
-            color: #FF9800;
-        }
-
-        .node-icon.end {
-            background: #FFEBEE;
-            color: #F44336;
-        }
-
-        .node-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .node-body {
-            padding: 12px 16px;
-        }
-
-        .node-content {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        /* 连接点 */
-        .connector {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: white;
-            border: 2px solid var(--gray-light-4);
-            border-radius: 50%;
-            cursor: crosshair;
-            transition: all 0.2s;
-        }
-
-        .connector:hover {
-            background: var(--theme-light-6);
-            border-color: var(--theme-light-6);
-            transform: scale(1.2);
-        }
-
-        .connector.top {
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .connector.bottom {
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .connector.left {
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .connector.right {
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        /* 右侧属性面板 */
-        .property-panel {
-            width: 320px;
-            background: white;
-            border-left: 1px solid var(--gray-light-3);
-            overflow-y: auto;
-        }
-
-        .panel-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--gray-light-3);
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .panel-body {
-            padding: 16px;
-        }
-
-        .panel-section {
-            margin-bottom: 20px;
-        }
-
-        .panel-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .panel-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--gray-light-3);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .panel-input:focus {
-            border-color: var(--theme-light-6);
-        }
-
-        .panel-textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--gray-light-3);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            resize: vertical;
-            min-height: 100px;
-            font-family: inherit;
-        }
-
-        .panel-textarea:focus {
-            border-color: var(--theme-light-6);
-        }
-
-        /* 工具栏 */
-        .toolbar {
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .toolbar-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .toolbar-btn:hover {
-            background: var(--gray-light-1);
-        }
-
-        .toolbar-btn.active {
-            background: var(--theme-light-1);
-            color: var(--theme-light-6);
-        }
-
-        .toolbar-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        /* 缩放控制 */
-        .zoom-controls {
-            position: absolute;
-            right: 340px;
-            bottom: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            padding: 4px;
-        }
-
-        .zoom-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-        }
-
-        .zoom-btn:hover {
-            background: var(--gray-light-1);
-        }
-
-        .zoom-level {
-            padding: 0 12px;
-            font-size: 13px;
-            color: var(--text-secondary);
+        .beta-tag img {
+            height: 80px;
+            width: auto;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -990,7 +666,7 @@
     <!-- 顶部导航栏 -->
     <nav class="top-nav">
         <div class="nav-left">
-            <div class="logo-section" id="logoHome">
+            <div class="logo-section">
                 <img src="assets/CodeBuddyAssets/8686_423922/1.svg" alt="logo">
                 <span class="logo-text">云联络中心</span>
             </div>
@@ -1031,7 +707,7 @@
             
             <div class="menu-section-title">智能体管理</div>
             
-            <div class="menu-item active" id="menuAgentManage">
+            <div class="menu-item active">
                 <img src="assets/CodeBuddyAssets/8686_423922/11.svg" alt="icon">
                 <span class="menu-text">智能体管理</span>
             </div>
@@ -1093,9 +769,9 @@
             </div>
         </aside>
 
-        <!-- Agent Builder 视图 -->
-        <main class="agent-builder-view" id="agentBuilderView">
-            <div class="content-inner">
+        <!-- 主内容区域 -->
+        <main class="content">
+            <div class="content-inner" style="position: relative;">
                 <!-- 标题区域 -->
                 <div class="title-section">
                     <h1 class="main-title"><span class="beta-tag"><img src="assets/CodeBuddyAssets/8686_423922/45.svg" alt="beta"></span>智能体工程师帮你搭建 <span class="ai-title-wrapper">AI 语音智能体<img class="ai-underline" src="assets/CodeBuddyAssets/8694_442218/1.svg" alt="ai"></span></h1>
@@ -1136,14 +812,14 @@
                 <!-- 模板卡片 - 通用 -->
                 <div class="template-grid" data-category="通用">
                     <!-- 智能客服卡片 -->
-                    <div class="template-card" data-template="智能客服">
+                    <div class="template-card">
                         <div class="card-inner">
                             <div class="card-content">
                                 <div class="card-header">
                                     <div class="card-top-row">
                                         <img src="assets/CodeBuddyAssets/8694_442218/9.svg" alt="icon" class="card-icon">
                                         <div class="card-badge blue">
-                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                             <span>流程画布</span>
                                         </div>
                                     </div>
@@ -1169,14 +845,14 @@
                     </div>
 
                     <!-- 试驾预约卡片 -->
-                    <div class="template-card" data-template="试驾预约">
+                    <div class="template-card">
                         <div class="card-inner">
                             <div class="card-content">
                                 <div class="card-header">
                                     <div class="card-top-row">
                                         <img src="assets/CodeBuddyAssets/8694_442218/12.svg" alt="icon" class="card-icon">
                                         <div class="card-badge blue">
-                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                             <span>流程画布</span>
                                         </div>
                                     </div>
@@ -1202,14 +878,14 @@
                     </div>
 
                     <!-- 呼入流程卡片 -->
-                    <div class="template-card" data-template="呼入流程">
+                    <div class="template-card">
                         <div class="card-inner">
                             <div class="card-content">
                                 <div class="card-header">
                                     <div class="card-top-row">
                                         <img src="assets/CodeBuddyAssets/8694_442218/15.svg" alt="icon" class="card-icon">
                                         <div class="card-badge blue">
-                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                             <span>流程画布</span>
                                         </div>
                                     </div>
@@ -1235,14 +911,14 @@
                     </div>
 
                     <!-- 简单通知卡片 -->
-                    <div class="template-card" data-template="简单通知">
+                    <div class="template-card">
                         <div class="card-inner">
                             <div class="card-content">
                                 <div class="card-header">
                                     <div class="card-top-row">
                                         <img src="assets/CodeBuddyAssets/8694_442218/18.svg" alt="icon" class="card-icon">
                                         <div class="card-badge green">
-                                            <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                             <span>内容配置</span>
                                         </div>
                                     </div>
@@ -1254,6 +930,618 @@
                                     <div class="card-preview-bg front">
                                         <img class="card-preview-img" style="width: 268.53px; height: 259.77px; left: -10.27px; top: 11px;" src="assets/CodeBuddyAssets/8694_442218/24.png" alt="preview">
                                         <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/20.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 - 金融 -->
+                <div class="template-grid" data-category="金融" style="display: none;">
+                    <!-- 信用卡催收卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8710_444424/8.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">信用卡催收</div>
+                                    <div class="card-desc">专业的信用卡逾期提醒与还款引导</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/21.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/11.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 贷款回访卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8710_444424/10.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">贷款回访</div>
+                                    <div class="card-desc">贷款发放后的满意度与合规回访</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 268.53px; height: 259.77px; left: -10.27px; top: 11px;" src="assets/CodeBuddyAssets/8694_442218/22.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/14.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 理财推介卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8710_444424/12.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">理财推介</div>
+                                    <div class="card-desc">针对高净值客户的理财产品推介</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/23.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/17.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 - 汽车 -->
+                <div class="template-grid" data-category="汽车" style="display: none;">
+                    <!-- 预约试驾卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_447200/8.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">预约试驾</div>
+                                    <div class="card-desc">潜在客户试驾预约与信息确认</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/21.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/11.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 售后保养卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_447200/10.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">售后保养</div>
+                                    <div class="card-desc">车辆定期保养提醒与预约服务</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 268.53px; height: 259.77px; left: -10.27px; top: 11px;" src="assets/CodeBuddyAssets/8694_442218/22.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/14.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 购车意向卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_447200/12.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">购车意向</div>
+                                    <div class="card-desc">展厅留资客户的后期意向跟进</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/23.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/17.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 - 医疗 -->
+                <div class="template-grid" data-category="医疗" style="display: none;">
+                    <!-- 预约挂号卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_448022/8.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">预约挂号</div>
+                                    <div class="card-desc">患者门诊挂号预约与科室引导</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/21.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/11.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 术后随访卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_448022/10.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">术后随访</div>
+                                    <div class="card-desc">手术后患者康复情况跟踪与指导</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 268.53px; height: 259.77px; left: -10.27px; top: 11px;" src="assets/CodeBuddyAssets/8694_442218/22.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/14.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 体检通知卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_448022/12.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">体检通知</div>
+                                    <div class="card-desc">体检预约确认与检前注意事项</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/23.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/17.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 - 零售 -->
+                <div class="template-grid" data-category="零售" style="display: none;">
+                    <!-- 订单确认卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_448844/8.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">订单确认</div>
+                                    <div class="card-desc">电商订单支付后的信息核实与确认</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/21.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/11.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 会员关怀卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_448844/10.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">会员关怀</div>
+                                    <div class="card-desc">会员生日祝福与专属权益推送</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 268.53px; height: 259.77px; left: -10.27px; top: 11px;" src="assets/CodeBuddyAssets/8694_442218/22.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/14.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 促销活动卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_448844/12.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">促销活动</div>
+                                    <div class="card-desc">节日大促与限时优惠活动通知</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/23.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/17.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 - 教育 -->
+                <div class="template-grid" data-category="教育" style="display: none;">
+                    <!-- 课程咨询卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_449666/8.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">课程咨询</div>
+                                    <div class="card-desc">潜在学员课程兴趣咨询与试听预约</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/21.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/11.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 学习跟进卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_449666/10.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">学习跟进</div>
+                                    <div class="card-desc">在读学员学习进度与作业完成提醒</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/22.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/14.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 满意度调查卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_449666/12.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">满意度调查</div>
+                                    <div class="card-desc">课程结束后的教学质量反馈收集</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/23.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/17.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板卡片 - 人力资源 -->
+                <div class="template-grid" data-category="人力资源" style="display: none;">
+                    <!-- 面试邀请卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_450488/8.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">面试邀请</div>
+                                    <div class="card-desc">候选人初试/复试时间确认与通知</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/21.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/11.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 入职引导卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_450488/10.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">入职引导</div>
+                                    <div class="card-desc">新员工入职材料准备与流程指引</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/22.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/14.svg" alt="icon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-hover-overlay">
+                                <div class="hover-text">使用微信扫码，即刻体验该模板对话效果</div>
+                                <div class="qr-code-wrapper">
+                                    <img src="assets/CodeBuddyAssets/8718_457858/1.png" alt="QR Code">
+                                </div>
+                                <button class="build-btn">立即搭建</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 员工调研卡片 -->
+                    <div class="template-card">
+                        <div class="card-inner">
+                            <div class="card-content">
+                                <div class="card-header">
+                                    <div class="card-top-row">
+                                        <img src="assets/CodeBuddyAssets/8711_450488/12.svg" alt="icon" class="card-icon">
+                                        <div class="card-badge blue">
+                                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            <span>流程画布</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-title">员工调研</div>
+                                    <div class="card-desc">企业文化与员工满意度匿名调研</div>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="card-preview-bg back"></div>
+                                    <div class="card-preview-bg front">
+                                        <img class="card-preview-img" style="width: 255.58px; height: 256.03px; left: -5.04px; top: 10.57px;" src="assets/CodeBuddyAssets/8694_442218/23.png" alt="preview">
+                                        <img class="card-preview-icon" src="assets/CodeBuddyAssets/8694_442218/17.svg" alt="icon">
                                     </div>
                                 </div>
                             </div>
@@ -1282,209 +1570,24 @@
                 </div>
             </div>
         </main>
-
-        <!-- Flow Editor 视图 -->
-        <div class="flow-editor-view" id="flowEditorView">
-            <!-- 编辑器头部 -->
-            <div class="editor-header">
-                <div class="editor-header-left">
-                    <button class="back-btn" id="backBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5M12 19l-7-7 7-7"/>
-                        </svg>
-                        返回
-                    </button>
-                    <h2 class="editor-title" id="editorTitle">智能客服 - 流程编辑</h2>
-                </div>
-                <div class="editor-header-right">
-                    <button class="save-btn">保存</button>
-                </div>
-            </div>
-
-            <!-- 编辑器主体 -->
-            <div class="editor-body">
-                <!-- 工具栏 -->
-                <div class="toolbar">
-                    <button class="toolbar-btn active" title="选择">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-                        </svg>
-                    </button>
-                    <button class="toolbar-btn" title="添加节点">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="12" y1="8" x2="12" y2="16"/>
-                            <line x1="8" y1="12" x2="16" y2="12"/>
-                        </svg>
-                    </button>
-                    <button class="toolbar-btn" title="连线">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                            <polyline points="15 3 21 3 21 9"/>
-                            <line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- 画布区域 -->
-                <div class="canvas-area">
-                    <!-- 开始节点 -->
-                    <div class="flow-node" style="left: 100px; top: 50px;">
-                        <div class="connector bottom"></div>
-                        <div class="node-header">
-                            <div class="node-icon start">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <polygon points="5 3 19 12 5 21 5 3"/>
-                                </svg>
-                            </div>
-                            <span class="node-title">开始</span>
-                        </div>
-                        <div class="node-body">
-                            <div class="node-content">用户来电接入</div>
-                        </div>
-                    </div>
-
-                    <!-- 欢迎语节点 -->
-                    <div class="flow-node" style="left: 100px; top: 180px;">
-                        <div class="connector top"></div>
-                        <div class="connector bottom"></div>
-                        <div class="node-header">
-                            <div class="node-icon process">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                                </svg>
-                            </div>
-                            <span class="node-title">欢迎语</span>
-                        </div>
-                        <div class="node-body">
-                            <div class="node-content">您好，欢迎致电客服中心，请问有什么可以帮您？</div>
-                        </div>
-                    </div>
-
-                    <!-- 意图识别节点 -->
-                    <div class="flow-node" style="left: 100px; top: 340px;">
-                        <div class="connector top"></div>
-                        <div class="connector bottom"></div>
-                        <div class="connector right"></div>
-                        <div class="node-header">
-                            <div class="node-icon condition">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <polygon points="12 2 22 12 12 22 2 12"/>
-                                </svg>
-                            </div>
-                            <span class="node-title">意图识别</span>
-                        </div>
-                        <div class="node-body">
-                            <div class="node-content">识别用户意图，分流到对应处理流程</div>
-                        </div>
-                    </div>
-
-                    <!-- 结束节点 -->
-                    <div class="flow-node" style="left: 100px; top: 500px;">
-                        <div class="connector top"></div>
-                        <div class="node-header">
-                            <div class="node-icon end">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <rect x="6" y="6" width="12" height="12"/>
-                                </svg>
-                            </div>
-                            <span class="node-title">结束</span>
-                        </div>
-                        <div class="node-body">
-                            <div class="node-content">感谢来电，再见</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 缩放控制 -->
-                <div class="zoom-controls">
-                    <button class="zoom-btn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                    </button>
-                    <span class="zoom-level">100%</span>
-                    <button class="zoom-btn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- 属性面板 -->
-                <div class="property-panel">
-                    <div class="panel-header">节点属性</div>
-                    <div class="panel-body">
-                        <div class="panel-section">
-                            <div class="panel-label">节点名称</div>
-                            <input type="text" class="panel-input" value="欢迎语" placeholder="请输入节点名称">
-                        </div>
-                        <div class="panel-section">
-                            <div class="panel-label">话术内容</div>
-                            <textarea class="panel-textarea" placeholder="请输入话术内容">您好，欢迎致电客服中心，请问有什么可以帮您？</textarea>
-                        </div>
-                        <div class="panel-section">
-                            <div class="panel-label">等待时间（秒）</div>
-                            <input type="number" class="panel-input" value="10" placeholder="请输入等待时间">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
-        // 视图切换
-        const agentBuilderView = document.getElementById('agentBuilderView');
-        const flowEditorView = document.getElementById('flowEditorView');
-        const editorTitle = document.getElementById('editorTitle');
-        const backBtn = document.getElementById('backBtn');
-        const logoHome = document.getElementById('logoHome');
-        const menuAgentManage = document.getElementById('menuAgentManage');
-
-        // 显示 Agent Builder 视图
-        function showAgentBuilder() {
-            agentBuilderView.classList.remove('hidden');
-            flowEditorView.classList.remove('active');
-        }
-
-        // 显示 Flow Editor 视图
-        function showFlowEditor(templateName) {
-            agentBuilderView.classList.add('hidden');
-            flowEditorView.classList.add('active');
-            editorTitle.textContent = templateName + ' - 流程编辑';
-        }
-
-        // 返回按钮点击
-        backBtn.addEventListener('click', showAgentBuilder);
-
-        // Logo 点击返回首页
-        logoHome.addEventListener('click', showAgentBuilder);
-
-        // 菜单点击返回
-        menuAgentManage.addEventListener('click', showAgentBuilder);
-
-        // 立即搭建按钮点击
-        document.querySelectorAll('.build-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const templateName = this.closest('.template-card').dataset.template;
-                showFlowEditor(templateName);
-            });
-        });
-
         // 分类标签点击切换
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', function() {
+                // 更新标签状态
                 document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 
+                // 获取分类名称
                 const categoryName = this.querySelector('span').textContent;
                 
+                // 切换卡片显示
                 document.querySelectorAll('.template-grid').forEach(grid => {
                     if (grid.dataset.category === categoryName) {
                         grid.style.display = 'grid';
+                        // 添加入场动画
                         grid.querySelectorAll('.template-card').forEach((card, index) => {
                             card.style.opacity = '0';
                             card.style.transform = 'translateY(20px)';
@@ -1501,11 +1604,28 @@
             });
         });
 
-        // 节点选择
-        document.querySelectorAll('.flow-node').forEach(node => {
-            node.addEventListener('click', function() {
-                document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
-                this.classList.add('selected');
+        // 菜单项点击
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 模板卡片点击
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', function() {
+                console.log('Template selected:', this.querySelector('.card-title').textContent);
+            });
+        });
+
+        // 立即搭建按钮点击
+        document.querySelectorAll('.build-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); // 阻止事件冒泡到卡片
+                const cardTitle = this.closest('.template-card').querySelector('.card-title').textContent;
+                // 跳转到流程编辑器页面，并传递模板名称
+                window.location.href = 'flow-editor.html?template=' + encodeURIComponent(cardTitle);
             });
         });
     </script>
